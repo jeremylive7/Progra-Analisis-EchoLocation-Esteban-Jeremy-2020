@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 import sys
-import time
+import math
 
 # -----------
 # Constantes
@@ -44,44 +44,56 @@ scale = [(0,0,0),
 WHITE = (255, 255, 255)
 SCREEN_WIDTH = 1040
 SCREEN_HEIGHT = 880
-image = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-image.fill(BLACK)
+sonar = [330, 130]
 puntos = []
-sonar = [180,130]
+
+surface2 = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+surface2.fill(BLACK)
+rect2 = surface2.get_rect()
+rect2.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+surface3 = pygame.Surface((0, 0), pygame.SRCALPHA)
+surface3.fill(BLACK)
+rect3 = surface3.get_rect()
+rect3.center = (200,200)
+
+surface4 = pygame.Surface((0, 0), pygame.SRCALPHA)
+surface4.fill(BLACK)
+rect4 = surface4.get_rect()
+rect4.center = (300, 300)
 
 
- 
 
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
 
 def getScaleColorStructure():
-    x = sonar[0]+1
-    y = sonar[1]+1
+    x = sonar[0]
+    y = sonar[1]
     scale.reverse()
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         x += 5
         y += 5
         puntos.append(punto)
 
 def getScaleColorStructure1():
-    x = sonar[0]+1
-    y = sonar[1]+1
+    x = sonar[0]
+    y = sonar[1]
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         x += 5
         puntos.append(punto)
 
 def getScaleColorStructure2():
-    x = sonar[0]+1
-    y = sonar[1]+1
+    x = sonar[0]
+    y = sonar[1]
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         y += 5
         puntos.append(punto)
 
@@ -90,7 +102,7 @@ def getScaleColorStructure3():
     y = sonar[1]
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         x -= 5
         puntos.append(punto)
 
@@ -99,7 +111,7 @@ def getScaleColorStructure4():
     y = sonar[1]
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         y -= 5
         puntos.append(punto)
 
@@ -108,7 +120,7 @@ def getScaleColorStructure5():
     y = sonar[1]
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         x -= 5
         y -= 5
         puntos.append(punto)
@@ -119,7 +131,7 @@ def getScaleColorStructure6():
     y = sonar[1]
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         x += 5
         y -= 5
         puntos.append(punto)
@@ -129,12 +141,22 @@ def getScaleColorStructure7():
     y = sonar[1]
 
     for color in scale:
-        punto = pygame.draw.circle(image, color, (x, y), 1)
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         x -= 5
         y += 5
         puntos.append(punto)
 
-getScaleColorStructure()
+def getScaleColorStructure8():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
+        x -= 5
+        y += 5
+        puntos.append(punto)
+
+#getScaleColorStructure()
 #getScaleColorStructure1()
 #getScaleColorStructure2()
 #getScaleColorStructure3()
@@ -142,6 +164,8 @@ getScaleColorStructure()
 #getScaleColorStructure5()
 #getScaleColorStructure6()
 #getScaleColorStructure7()
+#getScaleColorStructure8()
+
 
 # ------------------------------
 # Funcion principal del juego
@@ -149,23 +173,36 @@ getScaleColorStructure()
 
 def main():
     pygame.init()
-
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    #screen.fill(BLACK)
     pygame.display.set_caption("EcoDireccion")
-
-    for circulo in puntos:
-        screen.fill(BLACK)
-        screen.blit(image, circulo)
-        time.sleep(0.5)
+    surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        
+    #for circulo in puntos:
+    #    surface.fill(BLACK)
+    #    surface.blit(surface2, circulo)
      
-    pygame.display.flip()
-    #pygame.display.update()
 
+ 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 sys.exit()
+
+            surface.fill(BLACK)
+            surface.blit(surface2, rect2)
+            surface.blit(surface3, rect3)
+            surface.blit(surface4, rect4)
+        
+            rect3.center = pygame.mouse.get_pos()
+            pygame.draw.circle(surface2, WHITE, rect3.center, 5)
+            pygame.draw.circle(surface2, WHITE, rect4.center, 5)
+            
+            pygame.display.update()
+
+            dist = math.hypot(rect3.x - rect4.x, rect3.y - rect4.y)
+            if dist < (10 + 10):
+                print('Colisiono.')
+
 
 
 if __name__ == "__main__":
@@ -175,5 +212,9 @@ if __name__ == "__main__":
 # Comentarios
 # ------------------------------
 
+#if event.type == pygame.MOUSEBUTTONDOWN:
+#if event.type == pygame.MOUSEBUTTONUP:
+#    pass
+
 #pygame.display.update() es lo mismo que pygame.display.flip()
-#screen.fill(BLACK) es lo mismo que screen.blit(image,..)
+#screen.fill(BLACK) es lo mismo que screen.blit(surface2,..)
