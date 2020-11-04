@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import sys
+import time
 
 # -----------
 # Constantes
@@ -46,7 +47,7 @@ SCREEN_HEIGHT = 880
 image = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 image.fill(BLACK)
 puntos = []
-sonar = [275,200]
+sonar = [180,130]
 
 
  
@@ -56,8 +57,8 @@ sonar = [275,200]
 # ------------------------------
 
 def getScaleColorStructure():
-    x = sonar[0]
-    y = sonar[1]
+    x = sonar[0]+1
+    y = sonar[1]+1
     scale.reverse()
 
     for color in scale:
@@ -67,8 +68,8 @@ def getScaleColorStructure():
         puntos.append(punto)
 
 def getScaleColorStructure1():
-    x = sonar[0]
-    y = sonar[1]
+    x = sonar[0]+1
+    y = sonar[1]+1
 
     for color in scale:
         punto = pygame.draw.circle(image, color, (x, y), 1)
@@ -76,8 +77,8 @@ def getScaleColorStructure1():
         puntos.append(punto)
 
 def getScaleColorStructure2():
-    x = sonar[0]
-    y = sonar[1]
+    x = sonar[0]+1
+    y = sonar[1]+1
 
     for color in scale:
         punto = pygame.draw.circle(image, color, (x, y), 1)
@@ -134,13 +135,14 @@ def getScaleColorStructure7():
         puntos.append(punto)
 
 getScaleColorStructure()
-getScaleColorStructure1()
-getScaleColorStructure2()
-getScaleColorStructure3()
-getScaleColorStructure4()
-getScaleColorStructure5()
-getScaleColorStructure6()
-getScaleColorStructure7()
+#getScaleColorStructure1()
+#getScaleColorStructure2()
+#getScaleColorStructure3()
+#getScaleColorStructure4()
+#getScaleColorStructure5()
+#getScaleColorStructure6()
+#getScaleColorStructure7()
+
 # ------------------------------
 # Funcion principal del juego
 # ------------------------------
@@ -149,13 +151,16 @@ def main():
     pygame.init()
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    #screen.fill(BLACK)
     pygame.display.set_caption("EcoDireccion")
 
     for circulo in puntos:
+        screen.fill(BLACK)
         screen.blit(image, circulo)
-
-    ##pygame.display.update()  
+        time.sleep(0.5)
+     
     pygame.display.flip()
+    #pygame.display.update()
 
     while True:
         for event in pygame.event.get():
