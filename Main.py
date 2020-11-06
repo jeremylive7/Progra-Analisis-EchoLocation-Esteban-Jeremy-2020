@@ -176,8 +176,8 @@ def getScaleColorStructure9():
 #getScaleColorStructure5()
 #getScaleColorStructure6()
 #getScaleColorStructure7()
-getScaleColorStructure8()
-getScaleColorStructure9()
+#getScaleColorStructure8()
+#getScaleColorStructure9()
 
 
 # ------------------------------
@@ -189,12 +189,15 @@ def main():
     pygame.display.set_caption("EcoDireccion")
     surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         
-    for circulo in puntos:
-        surface.fill(BLACK)
-        surface.blit(surface2, circulo)
+    #for circulo in puntos:
+    #    surface.fill(BLACK)
+    #    surface.blit(surface2, circulo)
       
-    #pixAr = pygame.PixelArray(surface)
-    #pixAr[10][20]=WHITE
+    pixAr = pygame.PixelArray(surface)
+    pixAr[10][20]=GREEN
+    pixAr[10][40] = GREEN
+
+    circu1 = [10,20]
 
     while True:
         for event in pygame.event.get():
@@ -202,10 +205,10 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-            surface.fill(BLACK)
-            surface.blit(surface2, rect2)
-            surface.blit(surface3, rect3)
-            surface.blit(surface4, rect4)
+            #surface.fill(BLACK)
+            #surface.blit(surface2, rect2)
+            #surface.blit(surface3, rect3)
+            #surface.blit(surface4, rect4)
         
             rect3.center = pygame.mouse.get_pos()
             pygame.draw.circle(surface2, WHITE, rect3.center, 5)
@@ -213,7 +216,7 @@ def main():
             pygame.draw.line(surface2, WHITE, (400,400), (400,150))
             
             dist = math.hypot(rect3.x - rect4.x, rect3.y - rect4.y)
-            if dist < (10 + 10):
+            if dist < (5 + 5):
                 print('Colisiono.')
 
             for y in range(150,400):
@@ -221,8 +224,12 @@ def main():
                 if dist2 < (5 + 5):
                     print('Colisiono2.')
 
-            
+            posx, posy = pygame.mouse.get_pos()
+            pygame.draw.circle(surface, WHITE, (posx,posy), 5)
 
+            dist3 = math.hypot(posx - circu1[0],  posy - circu1[1])
+            if dist3 < (5 + 5):
+                print('Colisiono3.')
 
             pygame.display.update()
 
