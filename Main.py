@@ -7,6 +7,7 @@ import math
 # Constantes
 # -----------
 
+GREEN = (0,255,0)
 BLACK = (0, 0, 0)
 scale = [(0,0,0),
 (8,8,8),
@@ -152,6 +153,17 @@ def getScaleColorStructure8():
 
     for color in scale:
         punto = pygame.draw.circle(surface2, color, (x, y), 1)
+        x -= 2.5
+        y += 3.5
+        puntos.append(punto)
+
+
+def getScaleColorStructure9():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface2, color, (x, y), 1)
         x -= 5
         y += 5
         puntos.append(punto)
@@ -164,7 +176,8 @@ def getScaleColorStructure8():
 #getScaleColorStructure5()
 #getScaleColorStructure6()
 #getScaleColorStructure7()
-#getScaleColorStructure8()
+getScaleColorStructure8()
+getScaleColorStructure9()
 
 
 # ------------------------------
@@ -176,12 +189,13 @@ def main():
     pygame.display.set_caption("EcoDireccion")
     surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         
-    #for circulo in puntos:
-    #    surface.fill(BLACK)
-    #    surface.blit(surface2, circulo)
-     
+    for circulo in puntos:
+        surface.fill(BLACK)
+        surface.blit(surface2, circulo)
+      
+    #pixAr = pygame.PixelArray(surface)
+    #pixAr[10][20]=WHITE
 
- 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -206,6 +220,9 @@ def main():
                 dist2 = math.hypot(rect3.x - 400, rect3.y - y)
                 if dist2 < (5 + 5):
                     print('Colisiono2.')
+
+            
+
 
             pygame.display.update()
 
