@@ -196,12 +196,18 @@ def main():
             rect3.center = pygame.mouse.get_pos()
             pygame.draw.circle(surface2, WHITE, rect3.center, 5)
             pygame.draw.circle(surface2, WHITE, rect4.center, 5)
+            pygame.draw.line(surface2, WHITE, (400,400), (400,150))
             
-            pygame.display.update()
-
             dist = math.hypot(rect3.x - rect4.x, rect3.y - rect4.y)
             if dist < (10 + 10):
                 print('Colisiono.')
+
+            for y in range(150,400):
+                dist2 = math.hypot(rect3.x - 400, rect3.y - y)
+                if dist2 < (5 + 5):
+                    print('Colisiono2.')
+
+            pygame.display.update()
 
 
 
