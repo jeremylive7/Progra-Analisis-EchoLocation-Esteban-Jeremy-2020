@@ -45,140 +45,18 @@ scale = [(0,0,0),
 WHITE = (255, 255, 255)
 SCREEN_WIDTH = 1040
 SCREEN_HEIGHT = 880
-sonar = [330, 130]
-puntos = []
 
-surface2 = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-surface2.fill(BLACK)
-rect2 = surface2.get_rect()
-rect2.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+#Sonar
+sonar = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
 
+#Rayo
 surface3 = pygame.Surface((0, 0), pygame.SRCALPHA)
 surface3.fill(BLACK)
 rect3 = surface3.get_rect()
-rect3.center = (200,200)
-
-surface4 = pygame.Surface((0, 0), pygame.SRCALPHA)
-surface4.fill(BLACK)
-rect4 = surface4.get_rect()
-rect4.center = (300, 300)
-
-
 
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
-
-def getScaleColorStructure():
-    x = sonar[0]
-    y = sonar[1]
-    scale.reverse()
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x += 5
-        y += 5
-        puntos.append(punto)
-
-def getScaleColorStructure1():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x += 5
-        puntos.append(punto)
-
-def getScaleColorStructure2():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        y += 5
-        puntos.append(punto)
-
-def getScaleColorStructure3():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        puntos.append(punto)
-
-def getScaleColorStructure4():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        y -= 5
-        puntos.append(punto)
-
-def getScaleColorStructure5():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        y -= 5
-        puntos.append(punto)
-
-
-def getScaleColorStructure6():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x += 5
-        y -= 5
-        puntos.append(punto)
-
-def getScaleColorStructure7():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        y += 5
-        puntos.append(punto)
-
-def getScaleColorStructure8():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 2.5
-        y += 3.5
-        puntos.append(punto)
-
-
-def getScaleColorStructure9():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        y += 5
-        puntos.append(punto)
-
-#getScaleColorStructure()
-#getScaleColorStructure1()
-#getScaleColorStructure2()
-#getScaleColorStructure3()
-#getScaleColorStructure4()
-#getScaleColorStructure5()
-#getScaleColorStructure6()
-#getScaleColorStructure7()
-#getScaleColorStructure8()
-#getScaleColorStructure9()
-
 
 # ------------------------------
 # Funcion principal del juego
@@ -189,48 +67,58 @@ def main():
     pygame.display.set_caption("EcoDireccion")
     surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         
-    #for circulo in puntos:
-    #    surface.fill(BLACK)
-    #    surface.blit(surface2, circulo)
-      
-    pixAr = pygame.PixelArray(surface)
-    pixAr[10][20]=GREEN
-    pixAr[10][40] = GREEN
+    #esenario
+    pygame.draw.line(surface, WHITE, (5, 5), (5, 875))
+    pygame.draw.line(surface, WHITE, (5, 5), (1035, 5))
+    pygame.draw.line(surface, WHITE, (5, 875), (1035, 875))
+    pygame.draw.line(surface, WHITE, (1035, 5), (1035, 875))
 
-    circu1 = [10,20]
+    #rayos
+    pixAr = pygame.PixelArray(surface)
+
+    #Sonar
+    pixAr[sonar[0]][sonar[1]] = WHITE
+    
+    #Rayos
+    #...
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-            #surface.fill(BLACK)
-            #surface.blit(surface2, rect2)
-            #surface.blit(surface3, rect3)
-            #surface.blit(surface4, rect4)
-        
-            rect3.center = pygame.mouse.get_pos()
-            pygame.draw.circle(surface2, WHITE, rect3.center, 5)
-            pygame.draw.circle(surface2, WHITE, rect4.center, 5)
-            pygame.draw.line(surface2, WHITE, (400,400), (400,150))
             
-            dist = math.hypot(rect3.x - rect4.x, rect3.y - rect4.y)
-            if dist < (5 + 5):
-                print('Colisiono.')
-
-            for y in range(150,400):
-                dist2 = math.hypot(rect3.x - 400, rect3.y - y)
-                if dist2 < (5 + 5):
-                    print('Colisiono2.')
-
             posx, posy = pygame.mouse.get_pos()
-            pygame.draw.circle(surface, WHITE, (posx,posy), 5)
+            rect3.center = (posx, posy)
+            pygame.draw.circle(surface, WHITE, rect3.center, 1)
 
-            dist3 = math.hypot(posx - circu1[0],  posy - circu1[1])
-            if dist3 < (5 + 5):
-                print('Colisiono3.')
+            #Colision con sonar
+            dist = math.hypot(posx - sonar[0],  posy - sonar[1])
+            if dist < (1 + 1):
+                print('Llego al sonar.')
 
+            #Colision con pared
+            for y in range(5,875):
+                dist2 = math.hypot(rect3.x - 5, rect3.y - y)
+                if dist2 < (1 + 1):
+                    print('Colision con pared.')
+            
+            for h in range(5, 1035):
+                dist3 = math.hypot(rect3.x - h, rect3.y - 5)
+                if dist3 < (1 + 1):
+                    print('Colision con pared.')
+
+            for p in range(5, 1035):
+                dist4 = math.hypot(rect3.x - p, rect3.y - 875)
+                if dist4 < (1 + 1):
+                    print('Colision con pared.')
+
+            for k in range(5, 875):
+                dist5 = math.hypot(rect3.x - 1035, rect3.y - k)
+                if dist5 < (1 + 1):
+                    print('Colision con pared.')
+           
+            ##Update
             pygame.display.update()
 
 
@@ -238,13 +126,8 @@ def main():
 if __name__ == "__main__":
     main()
 
-# ------------------------------
-# Comentarios
-# ------------------------------
-
-#if event.type == pygame.MOUSEBUTTONDOWN:
-#if event.type == pygame.MOUSEBUTTONUP:
-#    pass
-
-#pygame.display.update() es lo mismo que pygame.display.flip()
-#screen.fill(BLACK) es lo mismo que screen.blit(surface2,..)
+           #Prueba
+    #print("x:")
+    #print(posx)
+    #print("y:")
+    #print(posy)
