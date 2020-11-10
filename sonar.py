@@ -11,14 +11,11 @@ def getAngulo(p1:Point,p2:Point):
         if p1.y<p2.y:
             return pi/2
         elif p1.y>p2.y:
-            return 3*pi/2
+            return -pi/2
         else:
             return None
     elif p1.y==p2.y:
-        if p1.x<p2.x:
-            return 0
-        elif p1.x>p2.x:
-            return pi
+        return 0
     else:
         return atan((p2.y-p1.y)/(p2.x-p1.x))
 class Rayo:
@@ -37,12 +34,17 @@ class Sonar:
             resultados=enviarSonido(direccion)
             for resultado in resultados:
                 px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
+    def anguloPrincipal(self,angulo):
+        while angulo<-pi or angulo>pi:
+            angulo+=2*pi*(1-2*(angulo>pi))
+        return angulo
     def obtenerAnguloDeReflexion(self,s,r):
-        return s+pi-(s-r)
+        return pi-(r-s)+s
+    def compararAngulos(self,cita,cita0):
+        return pow(cos(cita-cita0),2)
     def obtenerDireccion(self,anguloDeReflejo,energia,segmento):
-        a=atan((segmento[1].y-segmento[0].y)/(segmento[1].x-segmento[0].x))
-        b=random.uniform(a,a+pi)
-        energia-=b*k/anguloDeReflejo
+        b=useMonteCarloInAngle()
+        energia-=K*compararAngulos(b,anguloDeReflejo)
         return b,energia
     def enviarSonido(self,direccion,origen=self.pos,energia=1,cantRecursividades=0,resultados=[]):
         if cantRecursividades>=2:
@@ -77,7 +79,7 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-posicionDelSonar=Point(50,50)
+sonar=Sonar(Point(50,50),0.5,2.6)
 
 #warning, point order affects intersection test!!
 segments = [
@@ -96,8 +98,8 @@ for i in segments:
     pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 1)
 
 #thread setup
-t = threading.Thread(target = sonar) # f being the function that tells how the ball should move
-t.setDaemon(True) # Alternatively, you can use "t.daemon = True"
+t = threading.Thread(target = sonar.ejecutar)
+t.setDaemon(True) 
 t.start()
 
 #main loop
