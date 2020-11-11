@@ -87,15 +87,9 @@ matriz_pixeles[sonar[0]][sonar[1]] = WHITE
 
 #Rayo primario
 #Supongo que el random dio 2, direccion derecha inferior
-for num in range(0, ((SCREEN_WIDTH // 2) // 5) - 16):
-    rayo.x = pos_rayo_x
-    rayo.y = pos_rayo_y
-    punto = pygame.draw.circle(surface, WHITE, (rayo.x, rayo.y), 1)
-    puntos_rayo_primario.append(punto)
-    pos_rayo_x += 5
-    pos_rayo_y += 5
 
 
+        
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
@@ -110,7 +104,7 @@ for num in range(0, ((SCREEN_WIDTH // 2) // 5) - 16):
 # ------------------------------
 # Funcion principal del juego
 # ------------------------------
-
+                
 def main():
     #Inicializo la sincronia con el juego
     pygame.init()
@@ -127,9 +121,8 @@ def main():
             
             #Evento de mouse, se mueve circulo
             posx, posy = pygame.mouse.get_pos()
-            #rayo.center = (posx, posy)
-            #pygame.draw.circle(surface, WHITE, rayo.center, 1)
-
+            rayo.center = (posx, posy)
+            pygame.draw.circle(surface, WHITE, rayo.center, 1)
 
             #Colision con sonar
             dist = math.hypot(posx - sonar[0],  posy - sonar[1])
