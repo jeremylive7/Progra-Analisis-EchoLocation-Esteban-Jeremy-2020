@@ -28,12 +28,12 @@ class Rayo:
 class Sonar:
     def __init__(self,posicion:Point,low:float,high:float):
         self.pos=posicion
-        self.low=low
-        self.high=high
         if high-low>pi:
             x=high
             high=low+2*pi
-            low=high
+            low=x
+        self.low=low
+        self.high=high
     def ejecutar(self):
         while True:
             direccion=random.uniform(low,high)
