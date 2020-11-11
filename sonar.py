@@ -23,14 +23,20 @@ class Rayo:
         self.direccion=direccion
         self.origen=origen
         self.energia=energia
+    def getVectorDireccion(self):
+        return Point(sin(direccion),cos(direccion))
 class Sonar:
-    def __init__(self,posicion:Point,izq:float,der:float):
+    def __init__(self,posicion:Point,low:float,high:float):
         self.pos=posicion
-        self.izq=izq
-        self.der=der
+        self.low=low
+        self.high=high
+        if high-low>pi:
+            x=high
+            high=low+2*pi
+            low=high
     def ejecutar(self):
         while True:
-            direccion=random.uniform(izq,der)
+            direccion=random.uniform(low,high)
             resultados=enviarSonido(direccion)
             for resultado in resultados:
                 px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
@@ -42,6 +48,7 @@ class Sonar:
         return pi-(r-s)+s
     def compararAngulos(self,cita,cita0):
         return pow(cos(cita-cita0),2)
+    
     def obtenerDireccion(self,anguloDeReflejo,energia,segmento):
         b=useMonteCarloInAngle()
         energia-=K*compararAngulos(b,anguloDeReflejo)
@@ -49,7 +56,8 @@ class Sonar:
     def enviarSonido(self,direccion,origen=self.pos,energia=1,cantRecursividades=0,resultados=[]):
         if cantRecursividades>=2:
             return resultados
-        puntoQueChoca,segmentoConQueChoca=buscarPorTodosLosSegmentosParaVerConCualChoca(direccion,origen)
+        puntoQueChoca,segmentoConQueChoca=buscarPuntoDeImpacto(direccion,origen)#Considerando la oreja del sonar
+        if self.loEscucha(puntoQueChoca):
         energia=restarEnergia(energia,origen,puntoQueChoca)
         anguloDeIncidencia=obtenerAnguloDeReflexion(segmentoConQueChoca,direccion)
         for _ in range(CANT_RAYOS_MONTECARLO):
