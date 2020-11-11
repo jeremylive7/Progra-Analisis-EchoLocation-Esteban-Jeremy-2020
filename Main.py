@@ -2,12 +2,13 @@ import pygame
 from pygame.locals import *
 import sys
 import math
+import random
 
 # -----------
 # Constantes
 # -----------
 
-BLACK = (0, 0, 0)
+#Colores disponibles
 scale = [(0,0,0),
 (8,8,8),
 (16,16,16),
@@ -42,129 +43,68 @@ scale = [(0,0,0),
 (248,248,248),
 (255,255,255)]
 WHITE = (255, 255, 255)
+
+#Colores de blanco a negro
+scale.reverse()
+
+#Dimensiones de la pantalla
 SCREEN_WIDTH = 1040
 SCREEN_HEIGHT = 880
-sonar = [330, 130]
-puntos = []
 
-surface2 = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-surface2.fill(BLACK)
-rect2 = surface2.get_rect()
-rect2.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+#Pantalla
+surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+#Superficie de la figura circulo que irá haciendo camino, siendo el rayo
 surface3 = pygame.Surface((0, 0), pygame.SRCALPHA)
-surface3.fill(BLACK)
-rect3 = surface3.get_rect()
-rect3.center = (200,200)
+rayo = surface3.get_rect()
 
-surface4 = pygame.Surface((0, 0), pygame.SRCALPHA)
-surface4.fill(BLACK)
-rect4 = surface4.get_rect()
-rect4.center = (300, 300)
+#esenario
+pygame.draw.line(surface, WHITE, (5, 5), (5, 875))
+pygame.draw.line(surface, WHITE, (5, 5), (1035, 5))
+pygame.draw.line(surface, WHITE, (5, 875), (1035, 875))
+pygame.draw.line(surface, WHITE, (1035, 5), (1035, 875))
 
+
+#Coordenadainicial del sonar
+sonar = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
+
+#Rutas de las direcciones al rededor del sonar izq,der,up,down,derSup,derInf,izqSup,izqInf
+posicion = [1,2,3,4,5,6,7,8]
+
+#Direccion del sonar, aleatorio monte carlo #1
+direccionSonar = random.randint(0,8)
+
+#Posicion inicial del rayo
+pos_rayo_x = sonar[0]
+pos_rayo_y = sonar[1]
+
+#Conjunto de puntos que forman un rayo
+puntos_rayo_primario = []
+
+#Matriz de pixeles
+matriz_pixeles = pygame.PixelArray(surface)
+matriz_pixeles[sonar[0]][sonar[1]] = WHITE
+
+#Rayo primario
+#Supongo que el random dio 2, direccion derecha inferior
+for num in range(0, ((SCREEN_WIDTH // 2) // 5) - 16):
+    rayo.x = pos_rayo_x
+    rayo.y = pos_rayo_y
+    punto = pygame.draw.circle(surface, WHITE, (rayo.x, rayo.y), 1)
+    puntos_rayo_primario.append(punto)
+    pos_rayo_x += 5
+    pos_rayo_y += 5
 
 
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
 
-def getScaleColorStructure():
-    x = sonar[0]
-    y = sonar[1]
-    scale.reverse()
+#Metodos de obtencion de rayo reflector
 
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x += 5
-        y += 5
-        puntos.append(punto)
+#Metodo de formula de reflexion difusa
 
-def getScaleColorStructure1():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x += 5
-        puntos.append(punto)
-
-def getScaleColorStructure2():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        y += 5
-        puntos.append(punto)
-
-def getScaleColorStructure3():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        puntos.append(punto)
-
-def getScaleColorStructure4():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        y -= 5
-        puntos.append(punto)
-
-def getScaleColorStructure5():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        y -= 5
-        puntos.append(punto)
-
-
-def getScaleColorStructure6():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x += 5
-        y -= 5
-        puntos.append(punto)
-
-def getScaleColorStructure7():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        y += 5
-        puntos.append(punto)
-
-def getScaleColorStructure8():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface2, color, (x, y), 1)
-        x -= 5
-        y += 5
-        puntos.append(punto)
-
-#getScaleColorStructure()
-#getScaleColorStructure1()
-#getScaleColorStructure2()
-#getScaleColorStructure3()
-#getScaleColorStructure4()
-#getScaleColorStructure5()
-#getScaleColorStructure6()
-#getScaleColorStructure7()
-#getScaleColorStructure8()
+#Metodo de definir cuantas llamadas recursivas son
 
 
 # ------------------------------
@@ -172,49 +112,67 @@ def getScaleColorStructure8():
 # ------------------------------
 
 def main():
+    #Inicializo la sincronia con el juego
     pygame.init()
     pygame.display.set_caption("EcoDireccion")
-    surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        
-    #for circulo in puntos:
-    #    surface.fill(BLACK)
-    #    surface.blit(surface2, circulo)
-     
-
- 
+    
+    #Ciclo de recursion
     while True:
+
+        #Eventos del juego, teclado no se usa, solo el mouse
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-            surface.fill(BLACK)
-            surface.blit(surface2, rect2)
-            surface.blit(surface3, rect3)
-            surface.blit(surface4, rect4)
-        
-            rect3.center = pygame.mouse.get_pos()
-            pygame.draw.circle(surface2, WHITE, rect3.center, 5)
-            pygame.draw.circle(surface2, WHITE, rect4.center, 5)
             
-            pygame.display.update()
+            #Evento de mouse, se mueve circulo
+            posx, posy = pygame.mouse.get_pos()
+            #rayo.center = (posx, posy)
+            #pygame.draw.circle(surface, WHITE, rayo.center, 1)
 
-            dist = math.hypot(rect3.x - rect4.x, rect3.y - rect4.y)
-            if dist < (10 + 10):
-                print('Colisiono.')
+
+            #Colision con sonar
+            dist = math.hypot(posx - sonar[0],  posy - sonar[1])
+            if dist < (1 + 1):
+                print('Llego al sonar.')
+
+            #Colision con pared de la izquierda
+            for y in range(5,875):
+                dist2 = math.hypot(rayo.x - 5, rayo.y - y)
+                if dist2 < (1 + 1):
+                    print('Colision con pared de la izquierda')
+            
+            #Colision con pared de arriba
+            for h in range(5, 1035):
+                dist3 = math.hypot(rayo.x - h, rayo.y - 5)
+                if dist3 < (1 + 1):
+                    print('Colision con pared de arriba.')
+
+            #Colision con pared de abajo
+            for p in range(5, 1035):
+                dist4 = math.hypot(rayo.x - p, rayo.y - 875)
+                if dist4 < (1 + 1):
+                    print('Colision con pared de abajo.')
+                    print('rayo.x')
+                    print(rayo.x)
+                    print('rayo.y')
+                    print(rayo.y)
+
+            #Colision con pared de la derecha
+            for k in range(5, 875):
+                dist5 = math.hypot(rayo.x - 1035, rayo.y - k)
+                if dist5 < (1 + 1):
+                    print('Colision con pared de la derecha.')
+           
+            #distacia
+            #mess='La distancia es de {}'.format( str(int(dist2)))
+
+            ##Update
+            pygame.display.update()
 
 
 
 if __name__ == "__main__":
     main()
 
-# ------------------------------
-# Comentarios
-# ------------------------------
 
-#if event.type == pygame.MOUSEBUTTONDOWN:
-#if event.type == pygame.MOUSEBUTTONUP:
-#    pass
-
-#pygame.display.update() es lo mismo que pygame.display.flip()
-#screen.fill(BLACK) es lo mismo que screen.blit(surface2,..)
