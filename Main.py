@@ -86,69 +86,62 @@ puntos_rayo_primario = []
 #
 puntos = []
 
-def getScaleColorStructure():
-    x = sonar[0]
-    y = sonar[1]
+def getDirecciones(xx:int,yy:int):
+    direcciones = [1,2,3,4,5]
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x += 5
+            y += num
+            puntos.append(punto)
+
+def getDirecciones1(xx:int,yy:int):
+    direcciones = [1,2,3,4,5]
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x -= 5
+            y -= num
+            puntos.append(punto)
+
+def getDirecciones2(xx:int,yy:int):
+    direcciones = [1,2,3,4,5]
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x -= 5
+            y += num
+            puntos.append(punto)
+
+
+def getDirecciones4(xx: int, yy: int):
+    direcciones = [1, 2, 3, 4, 5]
+    x = xx
+    y = yy
 
     for color in scale:
         punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x += 5
-        y += 5
+        y -= 5
         puntos.append(punto)
-
-def getScaleColorStructure01():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x += 5
-        y += 4
-        puntos.append(punto)
-
-def getScaleColorStructure02():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x += 5
-        y += 3
-        puntos.append(punto)
+        
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x += num
+            y -= 5
+            puntos.append(punto)
 
 
-def getScaleColorStructure03():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x += 5
-        y += 2
-        puntos.append(punto)
-
-
-def getScaleColorStructure04():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x += 5
-        y += 0
-        puntos.append(punto)
-
-def getScaleColorStructure1():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x += 5
-        puntos.append(punto)
-
-
-def getScaleColorStructure2():
+def getDirecciones5(xx: int, yy: int):
+    direcciones = [1, 2, 3, 4, 5]
     x = sonar[0]
     y = sonar[1]
 
@@ -157,90 +150,89 @@ def getScaleColorStructure2():
         y += 5
         puntos.append(punto)
 
-
-def getScaleColorStructure3():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x -= 5
-        puntos.append(punto)
-
-
-def getScaleColorStructure4():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        y -= 5
-        puntos.append(punto)
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x += num
+            y += 5
+            puntos.append(punto)
 
 
-def getScaleColorStructure5():
-    x = sonar[0]
-    y = sonar[1]
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x -= 5
-        y -= 5
-        puntos.append(punto)
-
-
-def getScaleColorStructure6():
+def getDirecciones6(xx: int, yy: int):
+    direcciones = [1, 2, 3, 4, 5]
     x = sonar[0]
     y = sonar[1]
 
     for color in scale:
         punto = pygame.draw.circle(surface, color, (x, y), 1)
         x += 5
-        y -= 5
         puntos.append(punto)
 
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x += 5
+            y -= num
+            puntos.append(punto)
 
-def getScaleColorStructure7():
+def getDirecciones7(xx: int, yy: int):
+    direcciones = [1, 2, 3, 4, 5]
     x = sonar[0]
     y = sonar[1]
 
     for color in scale:
         punto = pygame.draw.circle(surface, color, (x, y), 1)
         x -= 5
-        y += 5
         puntos.append(punto)
 
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x -= num
+            y -= 5
+            puntos.append(punto)
 
-def getScaleColorStructure8():
+def getDirecciones8(xx: int, yy: int):
+    direcciones = [1, 2, 3, 4, 5]
     x = sonar[0]
     y = sonar[1]
 
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x -= 5
-        y += 3.5
-        puntos.append(punto)
+    for num in direcciones:
+        x = xx
+        y = yy
+        for color in scale:
+            punto = pygame.draw.circle(surface, color, (x, y), 1)
+            x -= num
+            y += 5
+            puntos.append(punto)
 
-
-
-
-getScaleColorStructure()
-getScaleColorStructure1()
-getScaleColorStructure2()
-getScaleColorStructure3()
-getScaleColorStructure4()
-getScaleColorStructure5()
-getScaleColorStructure6()
-getScaleColorStructure7()
-getScaleColorStructure8()
-getScaleColorStructure01()
-getScaleColorStructure02()
-getScaleColorStructure03()
-getScaleColorStructure04()
+getDirecciones(sonar[0],sonar[1])
+getDirecciones1(sonar[0],sonar[1])
+getDirecciones2(sonar[0],sonar[1])
+getDirecciones4(sonar[0], sonar[1])
+getDirecciones5(sonar[0], sonar[1])
+getDirecciones6(sonar[0], sonar[1])
+getDirecciones7(sonar[0], sonar[1])
+getDirecciones8(sonar[0], sonar[1])
 
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
+
+angulos = [0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,
+2,2.2,2.4,2.6,2.8,3,3.2,3.4,3.6,3.8,4,4.2,4.4,4.6,4.8,
+5,5.2,5.4,5.6,5.8,6,6.2,6.4,6.6,6.8,7,7.2,7.4,7.6,7.8]
+
+print(len(angulos))
+
+
+
 
 # ------------------------------
 # Funcion principal del juego
