@@ -64,9 +64,15 @@ pygame.draw.line(surface, WHITE, (5, 5), (1035, 5))
 pygame.draw.line(surface, WHITE, (5, 875), (1035, 875))
 pygame.draw.line(surface, WHITE, (1035, 5), (1035, 875))
 
-
-#Coordenadainicial del sonar
+#Coordenada inicial del sonar
 sonar = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
+pos_rayo_x = sonar[0]
+pos_rayo_y = sonar[1]
+
+#Matriz de pixeles
+matriz_pixeles = pygame.PixelArray(surface)
+matriz_pixeles[sonar[0]][sonar[1]] = WHITE
+
 
 #Rutas de las direcciones al rededor del sonar izq,der,up,down,derSup,derInf,izqSup,izqInf
 posicion = [1,2,3,4,5,6,7,8]
@@ -74,38 +80,167 @@ posicion = [1,2,3,4,5,6,7,8]
 #Direccion del sonar, aleatorio monte carlo #1
 direccionSonar = random.randint(0,8)
 
-#Posicion inicial del rayo
-pos_rayo_x = sonar[0]
-pos_rayo_y = sonar[1]
-
 #Conjunto de puntos que forman un rayo
 puntos_rayo_primario = []
 
-#Matriz de pixeles
-matriz_pixeles = pygame.PixelArray(surface)
-matriz_pixeles[sonar[0]][sonar[1]] = WHITE
+#
+puntos = []
 
-#Rayo primario
-#Supongo que el random dio 2, direccion derecha inferior
-for num in range(0, ((SCREEN_WIDTH // 2) // 5) - 16):
-    rayo.x = pos_rayo_x
-    rayo.y = pos_rayo_y
-    punto = pygame.draw.circle(surface, WHITE, (rayo.x, rayo.y), 1)
-    puntos_rayo_primario.append(punto)
-    pos_rayo_x += 5
-    pos_rayo_y += 5
+def getScaleColorStructure():
+    x = sonar[0]
+    y = sonar[1]
 
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x += 5
+        y += 5
+        puntos.append(punto)
+
+def getScaleColorStructure01():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x += 5
+        y += 4
+        puntos.append(punto)
+
+def getScaleColorStructure02():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x += 5
+        y += 3
+        puntos.append(punto)
+
+
+def getScaleColorStructure03():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x += 5
+        y += 2
+        puntos.append(punto)
+
+
+def getScaleColorStructure04():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x += 5
+        y += 0
+        puntos.append(punto)
+
+def getScaleColorStructure1():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x += 5
+        puntos.append(punto)
+
+
+def getScaleColorStructure2():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        y += 5
+        puntos.append(punto)
+
+
+def getScaleColorStructure3():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x -= 5
+        puntos.append(punto)
+
+
+def getScaleColorStructure4():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        y -= 5
+        puntos.append(punto)
+
+
+def getScaleColorStructure5():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x -= 5
+        y -= 5
+        puntos.append(punto)
+
+
+def getScaleColorStructure6():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x += 5
+        y -= 5
+        puntos.append(punto)
+
+
+def getScaleColorStructure7():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x -= 5
+        y += 5
+        puntos.append(punto)
+
+
+def getScaleColorStructure8():
+    x = sonar[0]
+    y = sonar[1]
+
+    for color in scale:
+        punto = pygame.draw.circle(surface, color, (x, y), 1)
+        x -= 5
+        y += 3.5
+        puntos.append(punto)
+
+
+
+
+getScaleColorStructure()
+getScaleColorStructure1()
+getScaleColorStructure2()
+getScaleColorStructure3()
+getScaleColorStructure4()
+getScaleColorStructure5()
+getScaleColorStructure6()
+getScaleColorStructure7()
+getScaleColorStructure8()
+getScaleColorStructure01()
+getScaleColorStructure02()
+getScaleColorStructure03()
+getScaleColorStructure04()
 
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
-
-#Metodos de obtencion de rayo reflector
-
-#Metodo de formula de reflexion difusa
-
-#Metodo de definir cuantas llamadas recursivas son
-
 
 # ------------------------------
 # Funcion principal del juego
@@ -124,52 +259,9 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
-            #Evento de mouse, se mueve circulo
-            posx, posy = pygame.mouse.get_pos()
-            #rayo.center = (posx, posy)
-            #pygame.draw.circle(surface, WHITE, rayo.center, 1)
 
-
-            #Colision con sonar
-            dist = math.hypot(posx - sonar[0],  posy - sonar[1])
-            if dist < (1 + 1):
-                print('Llego al sonar.')
-
-            #Colision con pared de la izquierda
-            for y in range(5,875):
-                dist2 = math.hypot(rayo.x - 5, rayo.y - y)
-                if dist2 < (1 + 1):
-                    print('Colision con pared de la izquierda')
-            
-            #Colision con pared de arriba
-            for h in range(5, 1035):
-                dist3 = math.hypot(rayo.x - h, rayo.y - 5)
-                if dist3 < (1 + 1):
-                    print('Colision con pared de arriba.')
-
-            #Colision con pared de abajo
-            for p in range(5, 1035):
-                dist4 = math.hypot(rayo.x - p, rayo.y - 875)
-                if dist4 < (1 + 1):
-                    print('Colision con pared de abajo.')
-                    print('rayo.x')
-                    print(rayo.x)
-                    print('rayo.y')
-                    print(rayo.y)
-
-            #Colision con pared de la derecha
-            for k in range(5, 875):
-                dist5 = math.hypot(rayo.x - 1035, rayo.y - k)
-                if dist5 < (1 + 1):
-                    print('Colision con pared de la derecha.')
-           
-            #distacia
-            #mess='La distancia es de {}'.format( str(int(dist2)))
-
-            ##Update
+            #Update
             pygame.display.update()
-
 
 
 if __name__ == "__main__":
