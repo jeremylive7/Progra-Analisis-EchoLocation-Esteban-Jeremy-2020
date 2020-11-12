@@ -28,18 +28,22 @@ class Rayo:
 class Sonar:
     def __init__(self,posicion:Point,low:float,high:float):
         self.pos=posicion
-        if high-low>pi:
+        while abs(high-low)>pi:
+            low+=(1-2*(high<low))*2*pi
+        if high<low:
             x=high
-            high=low+2*pi
+            high=low
             low=x
         self.low=low
         self.high=high
     def ejecutar(self):
-        while True:
-            direccion=random.uniform(low,high)
-            resultados=enviarSonido(direccion)
-            for resultado in resultados:
-                px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
+         for _ in range(50):
+            direccion=random.uniform(self.low,self.high)
+            finalLinea=(self.pos.x+300*sin(direccion),self.pos.y+300*cos(direccion))
+            pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
+            #resultados=enviarSonido(direccion)
+            #for resultado in resultados:
+                #px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
     def anguloPrincipal(self,angulo):
         while angulo<-pi or angulo>pi:
             angulo+=2*pi*(1-2*(angulo>pi))
@@ -53,7 +57,9 @@ class Sonar:
         b=useMonteCarloInAngle()
         energia-=K*compararAngulos(b,anguloDeReflejo)
         return b,energia
-    def enviarSonido(self,direccion,origen=self.pos,energia=1,cantRecursividades=0,resultados=[]):
+    def enviarSonido(self,direccion,origen=None,energia=1,cantRecursividades=0,resultados=[]):
+        if origen==None:
+            origen=self.pos
         if cantRecursividades>=2:
             return resultados
         puntoQueChoca,segmentoConQueChoca=buscarPuntoDeImpacto(direccion,origen)#Considerando la oreja del sonar
@@ -74,6 +80,7 @@ green=(0,255,0)
 blue=(0,0,255)
 white=(255,255,255)
 black=(0,0,0)
+grisamarillento=(149, 150, 80)
 
 #pygame stuff
 h,w=550,550
@@ -89,7 +96,7 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(50,50),0.5,2.6)
+sonar=Sonar(Point(400,300),-pi/4,-3*pi/4)
 
 #warning, point order affects intersection test!!
 segments = [
@@ -105,7 +112,7 @@ segments = [
             ]
 
 for i in segments:
-    pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 1)
+    pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 2)
 
 #thread setup
 t = threading.Thread(target = sonar.ejecutar)
@@ -121,3 +128,4 @@ while not done:
         pygame.display.update()
         clock.tick(60)
 pygame.quit()
+quit()
