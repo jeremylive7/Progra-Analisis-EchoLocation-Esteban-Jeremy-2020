@@ -57,7 +57,9 @@ class Sonar:
         if cantRecursividades>=2:
             return resultados
         puntoQueChoca,segmentoConQueChoca=buscarPuntoDeImpacto(direccion,origen)#Considerando la oreja del sonar
-        if self.loEscucha(puntoQueChoca):
+        
+        if self.loEscucha(puntoQueChoca): pass
+
         energia=restarEnergia(energia,origen,puntoQueChoca)
         anguloDeIncidencia=obtenerAnguloDeReflexion(segmentoConQueChoca,direccion)
         for _ in range(CANT_RAYOS_MONTECARLO):
