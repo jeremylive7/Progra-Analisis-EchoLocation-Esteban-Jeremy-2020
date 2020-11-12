@@ -170,3 +170,148 @@ for num in range(0, ((SCREEN_WIDTH // 2) // 5) - 16):
     puntos_rayo_primario.append(punto)
     pos_rayo_x += 5
     pos_rayo_y += 5
+
+    #Evento de mouse, se mueve circulo
+    posx, posy = pygame.mouse.get_pos()
+    rayo.center = (posx, posy)
+    pygame.draw.circle(surface, WHITE, rayo.center, 1)
+
+           #Colision con pared de la izquierda
+           for y in range(5, 875):
+                dist2 = math.hypot(rayo.x - 5, rayo.y - y)
+                if dist2 < (1 + 1):
+                    print('Colision con pared de la izquierda')
+
+            #Colision con pared de arriba
+            for h in range(5, 1035):
+                dist3 = math.hypot(rayo.x - h, rayo.y - 5)
+                if dist3 < (1 + 1):
+                    print('Colision con pared de arriba.')
+
+            #Colision con pared de abajo
+            for p in range(5, 1035):
+                dist4 = math.hypot(rayo.x - p, rayo.y - 875)
+                if dist4 < (1 + 1):
+                    print('Colision con pared de abajo.')
+
+            #Colision con pared de la derecha
+            for k in range(5, 875):
+                dist5 = math.hypot(rayo.x - 1035, rayo.y - k)
+                if dist5 < (1 + 1):
+                    print('Colision con pared de la derecha.')
+
+            #distacia
+            #mess='La distancia es de {}'.format( str(int(dist2)))
+
+            #Colision con sonar
+            #dist = math.hypot(posx - sonar[0],  posy - sonar[1])
+            #if dist < (1 + 1):
+            #    print('Llego al sonar.')
+
+
+todosRayos = []
+def todosLosRayosTodasDirecciones():
+    #Inserto rayo de la derecha inferior
+    for num in range(0, ((SCREEN_WIDTH // 2) // 5) - 16):
+        posicion_x = sonar[0]
+        posicion_y = sonar[1]
+        rayo.x = posicion_x
+        rayo.y = posicion_x
+        punto = [rayo.x, rayo.y]
+        posicion_x += 5
+        posicion_y += 5
+        todosRayos.append(punto)
+
+    #Inseto rayo de la derecha
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_x += 5
+    todosRayos.append(punto)
+
+    #Inserto rayo de la arriba
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_y += 5
+    todosRayos.append(punto)
+
+    #Inserto rayo izquierda
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_x -= 5
+    todosRayos.append(punto)
+
+    #Inserto rayo abajo
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_y -= 5
+    todosRayos.append(punto)
+
+    #Inserto rayo izquirda superior
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_x -= 5
+    posicion_y -= 5
+    todosRayos.append(punto)
+
+    #Inserto rayo derecha superior
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_x += 5
+    posicion_y -= 5
+    todosRayos.append(punto)
+    
+    #Inserto rayo izquierda inferior
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_x -= 5
+    posicion_y += 5
+    todosRayos.append(punto)
+
+    #Inserto rayo izquierda inferior 2
+    posicion_x = sonar[0]
+    posicion_y = sonar[1]
+    rayo.x = posicion_x
+    rayo.y = posicion_x
+    punto = [rayo.x, rayo.y]
+    posicion_x -= 2.5
+    posicion_y += 3.5
+    todosRayos.append(punto)
+
+
+
+estructura = []
+def obtencionDeRayos(x:int, y:int, direccion:float):
+    print ('Cargando rayos...')   
+    #La direccion es 1.8 
+    #El angulo es 120 grados
+    
+    obtencionDeRayos(400,400,0.8)
+    print (estructura)
+
+
+#Metodos de obtencion de rayo reflector
+
+#Metodo de formula de reflexion difusa
+
+#Metodo de definir cuantas llamadas recursivas son
