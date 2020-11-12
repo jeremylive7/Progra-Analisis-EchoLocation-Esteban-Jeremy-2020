@@ -50,19 +50,20 @@ scale.reverse()
 #Dimensiones de la pantalla
 SCREEN_WIDTH = 1040
 SCREEN_HEIGHT = 880
+indice0 = 0
 
 #Pantalla
 surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 #Superficie de la figura circulo que irá haciendo camino, siendo el rayo
-surface3 = pygame.Surface((0, 0), pygame.SRCALPHA)
+surface3 = pygame.Surface((indice0, indice0), pygame.SRCALPHA)
 rayo = surface3.get_rect()
 
 #esenario
-pygame.draw.line(surface, WHITE, (5, 5), (5, 875))
-pygame.draw.line(surface, WHITE, (5, 5), (1035, 5))
-pygame.draw.line(surface, WHITE, (5, 875), (1035, 875))
-pygame.draw.line(surface, WHITE, (1035, 5), (1035, 875))
+pygame.draw.line(surface, WHITE, (indice0, indice0), (indice0, SCREEN_HEIGHT))
+pygame.draw.line(surface, WHITE, (indice0, indice0), (SCREEN_WIDTH, indice0))
+pygame.draw.line(surface, WHITE, (indice0, SCREEN_HEIGHT), (SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.draw.line(surface, WHITE, (SCREEN_WIDTH, indice0), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
 #Coordenadainicial del sonar
@@ -81,6 +82,7 @@ pos_rayo_y = sonar[1]
 #Conjunto de puntos que forman un rayo
 puntos_rayo_primario = []
 
+<<<<<<< Updated upstream
 #Matriz de pixeles
 matriz_pixeles = pygame.PixelArray(surface)
 matriz_pixeles[sonar[0]][sonar[1]] = WHITE
@@ -90,16 +92,44 @@ matriz_pixeles[sonar[0]][sonar[1]] = WHITE
 
 
         
+=======
+>>>>>>> Stashed changes
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
 
+<<<<<<< Updated upstream
 #Metodos de obtencion de rayo reflector
 
 #Metodo de formula de reflexion difusa
 
 #Metodo de definir cuantas llamadas recursivas son
+=======
 
+
+#X += math.sin(rayo.angulo)*C
+#Y += math.cos(rayo.angulo)*K
+#Rayo primario
+#Supongo que el random dio 2, direccion derecha inferior
+def prueba(x: int, y: int):
+
+    for num in range(y, SCREEN_WIDTH):
+        
+        if num > SCREEN_HEIGHT:
+            break
+
+        rayo.x = x
+        rayo.y = y
+        punto = pygame.draw.circle(surface, WHITE, (rayo.x, rayo.y), 1)
+        puntos_rayo_primario.append(punto)
+        x += 1
+        y += 1
+>>>>>>> Stashed changes
+
+def ejemplo1():
+    prueba(sonar[0],sonar[1])
+
+ejemplo1()
 
 # ------------------------------
 # Funcion principal del juego
@@ -110,6 +140,31 @@ def main():
     pygame.init()
     pygame.display.set_caption("EcoDireccion")
     
+    #Colision con pared de la izquierda
+    for y in range(indice0, SCREEN_HEIGHT):
+        dist2 = math.hypot(rayo.x, rayo.y - y)
+        if dist2 < 1:
+            print('Colision con pared de la izquierda')
+
+    #Colision con pared de arriba
+    for h in range(indice0, SCREEN_WIDTH):
+        dist3 = math.hypot(rayo.x - h, rayo.y)
+        if dist3 < 1:
+            print('Colision con pared de arriba.')
+
+    #Colision con pared de abajo
+    for p in range(indice0, SCREEN_WIDTH):
+        dist4 = math.hypot(rayo.x - p, rayo.y - SCREEN_HEIGHT)
+        if dist4 < 1:
+            print('Colision con pared de abajo.')
+            print(dist4)
+
+    #Colision con pared de la derecha
+    for k in range(indice0, SCREEN_HEIGHT):
+        dist5 = math.hypot(rayo.x - SCREEN_WIDTH, rayo.y - k)
+        if dist5 < 1:
+            print('Colision con pared de la derecha.')
+
     #Ciclo de recursion
     while True:
 
