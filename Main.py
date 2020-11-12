@@ -142,8 +142,8 @@ def getDirecciones4(xx: int, yy: int):
 
 def getDirecciones5(xx: int, yy: int):
     direcciones = [1, 2, 3, 4, 5]
-    x = sonar[0]
-    y = sonar[1]
+    x = xx
+    y = yy
 
     for color in scale:
         punto = pygame.draw.circle(surface, color, (x, y), 1)
@@ -162,8 +162,8 @@ def getDirecciones5(xx: int, yy: int):
 
 def getDirecciones6(xx: int, yy: int):
     direcciones = [1, 2, 3, 4, 5]
-    x = sonar[0]
-    y = sonar[1]
+    x = xx
+    y = yy
 
     for color in scale:
         punto = pygame.draw.circle(surface, color, (x, y), 1)
@@ -181,8 +181,8 @@ def getDirecciones6(xx: int, yy: int):
 
 def getDirecciones7(xx: int, yy: int):
     direcciones = [1, 2, 3, 4, 5]
-    x = sonar[0]
-    y = sonar[1]
+    x = xx
+    y = yy
 
     for color in scale:
         punto = pygame.draw.circle(surface, color, (x, y), 1)
@@ -200,8 +200,6 @@ def getDirecciones7(xx: int, yy: int):
 
 def getDirecciones8(xx: int, yy: int):
     direcciones = [1, 2, 3, 4, 5]
-    x = sonar[0]
-    y = sonar[1]
 
     for num in direcciones:
         x = xx
@@ -212,15 +210,27 @@ def getDirecciones8(xx: int, yy: int):
             y += 5
             puntos.append(punto)
 
-getDirecciones(sonar[0],sonar[1])
-getDirecciones1(sonar[0],sonar[1])
-getDirecciones2(sonar[0],sonar[1])
-getDirecciones4(sonar[0], sonar[1])
-getDirecciones5(sonar[0], sonar[1])
-getDirecciones6(sonar[0], sonar[1])
-getDirecciones7(sonar[0], sonar[1])
-getDirecciones8(sonar[0], sonar[1])
 
+def putSonar(x:int,y:int):
+    getDirecciones(x, y)
+    getDirecciones1(x, y)
+    getDirecciones2(x, y)
+    getDirecciones4(x, y)
+    getDirecciones5(x, y)
+    getDirecciones6(x, y)
+    getDirecciones7(x, y)
+    getDirecciones8(x, y)
+
+
+def putSonarDiferrentesPosiciones():
+    putSonar(400,400)
+    putSonar(900,500)
+    putSonar(200,100)
+    putSonar(900,200)
+    putSonar(sonar[0], sonar[1])
+
+
+putSonarDiferrentesPosiciones()
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
