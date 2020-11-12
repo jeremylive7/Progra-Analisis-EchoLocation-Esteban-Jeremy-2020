@@ -18,13 +18,19 @@ def getAngulo(p1:Point,p2:Point):
         return 0
     else:
         return atan((p2.y-p1.y)/(p2.x-p1.x))
+class Resultado:
+    def __init__(self,rayo):
+        self.posicion=4
 class Rayo:
-    def __init__(self,direccion,origen,energia=255):
+    def __init__(self,direccion,origen,distancia=0,energia=255):
         self.direccion=direccion
         self.origen=origen
         self.energia=energia
+        self.distanciaRecorrida=distancia
     def getVectorDireccion(self):
         return Point(sin(direccion),cos(direccion))
+    def parseResultado(self):
+        return Resultado(self)
 class Sonar:
     def __init__(self,posicion:Point,low:float,high:float):
         self.pos=posicion
@@ -39,7 +45,7 @@ class Sonar:
     def ejecutar(self):
          for _ in range(50):
             direccion=random.uniform(self.low,self.high)
-            finalLinea=(self.pos.x+300*sin(direccion),self.pos.y+300*cos(direccion))
+            finalLinea=(self.pos.x+300*cos(direccion),self.pos.y+300*sin(direccion))
             pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
@@ -96,7 +102,7 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(400,300),-pi/4,-3*pi/4)
+sonar=Sonar(Point(400,300),0,pi/4)
 
 #warning, point order affects intersection test!!
 segments = [
