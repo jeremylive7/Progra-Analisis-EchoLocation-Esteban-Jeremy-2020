@@ -50,29 +50,24 @@ scale.reverse()
 #Dimensiones de la pantalla
 SCREEN_WIDTH = 1040
 SCREEN_HEIGHT = 880
+indice0 = 0
 
 #Pantalla
 surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 #Superficie de la figura circulo que irá haciendo camino, siendo el rayo
-surface3 = pygame.Surface((0, 0), pygame.SRCALPHA)
+surface3 = pygame.Surface((indice0, indice0), pygame.SRCALPHA)
 rayo = surface3.get_rect()
 
 #esenario
-pygame.draw.line(surface, WHITE, (5, 5), (5, 875))
-pygame.draw.line(surface, WHITE, (5, 5), (1035, 5))
-pygame.draw.line(surface, WHITE, (5, 875), (1035, 875))
-pygame.draw.line(surface, WHITE, (1035, 5), (1035, 875))
+pygame.draw.line(surface, WHITE, (indice0, indice0), (indice0, SCREEN_HEIGHT))
+pygame.draw.line(surface, WHITE, (indice0, indice0), (SCREEN_WIDTH, indice0))
+pygame.draw.line(surface, WHITE, (indice0, SCREEN_HEIGHT), (SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.draw.line(surface, WHITE, (SCREEN_WIDTH, indice0), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
-#Coordenada inicial del sonar
+
+#Coordenadainicial del sonar
 sonar = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
-pos_rayo_x = sonar[0]
-pos_rayo_y = sonar[1]
-
-#Matriz de pixeles
-matriz_pixeles = pygame.PixelArray(surface)
-matriz_pixeles[sonar[0]][sonar[1]] = WHITE
-
 
 #Rutas de las direcciones al rededor del sonar izq,der,up,down,derSup,derInf,izqSup,izqInf
 posicion = [1,2,3,4,5,6,7,8]
@@ -80,179 +75,85 @@ posicion = [1,2,3,4,5,6,7,8]
 #Direccion del sonar, aleatorio monte carlo #1
 direccionSonar = random.randint(0,8)
 
+#Posicion inicial del rayo
+pos_rayo_x = sonar[0]
+pos_rayo_y = sonar[1]
+
 #Conjunto de puntos que forman un rayo
 puntos_rayo_primario = []
 
-#
-puntos = []
+#Matriz de pixeles
+matriz_pixeles = pygame.PixelArray(surface)
+matriz_pixeles[sonar[0]][sonar[1]] = WHITE
 
-def getDirecciones(xx:int,yy:int):
-    direcciones = [1,2,3,4,5]
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x += 5
-            y += num
-            puntos.append(punto)
-
-def getDirecciones1(xx:int,yy:int):
-    direcciones = [1,2,3,4,5]
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x -= 5
-            y -= num
-            puntos.append(punto)
-
-def getDirecciones2(xx:int,yy:int):
-    direcciones = [1,2,3,4,5]
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x -= 5
-            y += num
-            puntos.append(punto)
+#Rayo primario
+#Supongo que el random dio 2, direccion derecha inferior
 
 
-def getDirecciones4(xx: int, yy: int):
-    direcciones = [1, 2, 3, 4, 5]
-    x = xx
-    y = yy
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        y -= 5
-        puntos.append(punto)
         
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x += num
-            y -= 5
-            puntos.append(punto)
-
-
-def getDirecciones5(xx: int, yy: int):
-    direcciones = [1, 2, 3, 4, 5]
-    x = xx
-    y = yy
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        y += 5
-        puntos.append(punto)
-
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x += num
-            y += 5
-            puntos.append(punto)
-
-
-def getDirecciones6(xx: int, yy: int):
-    direcciones = [1, 2, 3, 4, 5]
-    x = xx
-    y = yy
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x += 5
-        puntos.append(punto)
-
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x += 5
-            y -= num
-            puntos.append(punto)
-
-def getDirecciones7(xx: int, yy: int):
-    direcciones = [1, 2, 3, 4, 5]
-    x = xx
-    y = yy
-
-    for color in scale:
-        punto = pygame.draw.circle(surface, color, (x, y), 1)
-        x -= 5
-        puntos.append(punto)
-
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x -= num
-            y -= 5
-            puntos.append(punto)
-
-def getDirecciones8(xx: int, yy: int):
-    direcciones = [1, 2, 3, 4, 5]
-
-    for num in direcciones:
-        x = xx
-        y = yy
-        for color in scale:
-            punto = pygame.draw.circle(surface, color, (x, y), 1)
-            x -= num
-            y += 5
-            puntos.append(punto)
-
-
-def putSonar(x:int,y:int):
-    getDirecciones(x, y)
-    getDirecciones1(x, y)
-    getDirecciones2(x, y)
-    getDirecciones4(x, y)
-    getDirecciones5(x, y)
-    getDirecciones6(x, y)
-    getDirecciones7(x, y)
-    getDirecciones8(x, y)
-
-
-def putSonarDiferrentesPosiciones():
-    putSonar(400,400)
-    putSonar(900,500)
-    putSonar(200,100)
-    putSonar(900,200)
-    putSonar(sonar[0], sonar[1])
-
-
-putSonarDiferrentesPosiciones()
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
 
-angulos = [0,0.2,0.4,0.6,0.8,1,1.2,1.4,1.6,1.8,
-2,2.2,2.4,2.6,2.8,3,3.2,3.4,3.6,3.8,4,4.2,4.4,4.6,4.8,
-5,5.2,5.4,5.6,5.8,6,6.2,6.4,6.6,6.8,7,7.2,7.4,7.6,7.8]
-
-print(len(angulos))
 
 
+#X += math.sin(rayo.angulo)*C
+#Y += math.cos(rayo.angulo)*K
+#Rayo primario
+#Supongo que el random dio 2, direccion derecha inferior
+def prueba(x: int, y: int):
 
+    for num in range(y, SCREEN_WIDTH):
+        
+        if num > SCREEN_HEIGHT:
+            break
+
+        rayo.x = x
+        rayo.y = y
+        punto = pygame.draw.circle(surface, WHITE, (rayo.x, rayo.y), 1)
+        puntos_rayo_primario.append(punto)
+        x += 1
+        y += 1
+
+def ejemplo1():
+    prueba(sonar[0],sonar[1])
+
+ejemplo1()
 
 # ------------------------------
 # Funcion principal del juego
 # ------------------------------
-
+                
 def main():
     #Inicializo la sincronia con el juego
     pygame.init()
     pygame.display.set_caption("EcoDireccion")
     
+    #Colision con pared de la izquierda
+    for y in range(indice0, SCREEN_HEIGHT):
+        dist2 = math.hypot(rayo.x, rayo.y - y)
+        if dist2 < 1:
+            print('Colision con pared de la izquierda')
+
+    #Colision con pared de arriba
+    for h in range(indice0, SCREEN_WIDTH):
+        dist3 = math.hypot(rayo.x - h, rayo.y)
+        if dist3 < 1:
+            print('Colision con pared de arriba.')
+
+    #Colision con pared de abajo
+    for p in range(indice0, SCREEN_WIDTH):
+        dist4 = math.hypot(rayo.x - p, rayo.y - SCREEN_HEIGHT)
+        if dist4 < 1:
+            print('Colision con pared de abajo.')
+            print(dist4)
+
+    #Colision con pared de la derecha
+    for k in range(indice0, SCREEN_HEIGHT):
+        dist5 = math.hypot(rayo.x - SCREEN_WIDTH, rayo.y - k)
+        if dist5 < 1:
+            print('Colision con pared de la derecha.')
+
     #Ciclo de recursion
     while True:
 
@@ -261,9 +162,24 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            
+            #Evento de mouse, se mueve circulo
+            posx, posy = pygame.mouse.get_pos()
+            rayo.center = (posx, posy)
+            pygame.draw.circle(surface, WHITE, rayo.center, 1)
 
-            #Update
+            #Colision con sonar
+            dist = math.hypot(posx - sonar[0],  posy - sonar[1])
+            if dist < (1 + 1):
+                print('Llego al sonar.')
+
+           
+            #distacia
+            #mess='La distancia es de {}'.format( str(int(dist2)))
+
+            ##Update
             pygame.display.update()
+
 
 
 if __name__ == "__main__":

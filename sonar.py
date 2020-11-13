@@ -102,7 +102,7 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(400,300),0,pi/4)
+sonar=Sonar(Point(200,300),pi*5/6,pi*2/3)
 
 #warning, point order affects intersection test!!
 segments = [
