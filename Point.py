@@ -7,6 +7,12 @@ class Point:
         self.x = x
         self.y = y
 
+    def distancia(self, otro):
+        """ Devuelve la distancia entre ambos puntos. """
+        dx = self.x - otro.x
+        dy = self.y - otro.y
+        return (dx*dx + dy*dy)**0.5
+        
     def __add__(self, other):
         return Point(self.x+other.x, self.y+other.y)
 
