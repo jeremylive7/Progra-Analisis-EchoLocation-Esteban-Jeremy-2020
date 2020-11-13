@@ -60,8 +60,8 @@ class Sonar:
          for _ in range(50):
             direccion=random.uniform(self.low,self.high)
             finalLinea=(self.pos.x+300*cos(direccion),self.pos.y+300*sin(direccion))
-            conjunto_rayos.append(
-            	([Point(self.pos.x, self.pos.y), Point(finalLinea[0], finalLinea[1])]))
+            conjunto_rayos.append(([Point(self.pos.x, self.pos.y), Point(finalLinea[0], finalLinea[1]), direccion]))
+            
             #pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
@@ -95,6 +95,10 @@ class Sonar:
 
             resultados+=enviarSonido(nuevaDireccion,puntoQueChoca,nuevaEnergia,cantRecursividades+1)
         return resultados
+
+
+def obtenerAnguloDeReflexion2(s, r):
+    return pi-(r-s)+s
 
 # COLORS
 red=(255,0,0)
@@ -187,7 +191,17 @@ grupo_choque = []
 for imp1 in conjunto_aleatorio:
     for imp2 in segments:
         if intersect(imp1[0],imp1[1],imp2[0],imp2[1]):
-            grupo_choque.append(([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), Point(imp2[0].x, imp2[0].y), Point(imp2[1].x, imp2[1].y)]))
+            ##grupo_choque.append(([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), Point(imp2[0].x, imp2[0].y), Point(imp2[1].x, imp2[1].y)]))
+            grupo_choque.append(
+                ([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), imp1[2]]))
+
+            #anguloReflejoHipot = obtenerAnguloDeReflexion2(pi, imp1[2])
+            #x = int(imp1[1].x)
+            #y = int(imp1[1].y)
+            #finalRayoHipot = (x+300*cos(anguloReflejoHipot), y+300*sin(anguloReflejoHipot))
+            #pygame.draw.line(screen, (0, 105, 77), (x, y), finalRayoHipot, 1)
+            
+          
             #choque.append(rt.raySegmentIntersect(imp1[0], imp1[1], imp2[0], imp2[1]))
             #choque.append((imp2[0].x - imp1[0].x) * (imp2[1].y - imp1[0].y) -
             #              (imp2[1].x - imp1[0].x) * (imp2[0].y - imp1[0].y))
@@ -204,6 +218,13 @@ for hp in grupo_choque:
         #print(matriz_pixeles[x][y] == screen.map_rgb(blue))
         if matriz_pixeles[x][y] == screen.map_rgb(blue):
             choque.append(Point(x,y))
+            anguloReflejoHipot = obtenerAnguloDeReflexion2(pi, hp[2])
+            finalRayoHipot = (x+300*cos(anguloReflejoHipot),
+                              y+300*sin(anguloReflejoHipot))
+            pygame.draw.line(screen, (0, 105, 77), (x, y), finalRayoHipot, 1)
+
+
+
 
 for f in range(0,len(choque)-1):
     print("Colision: x: %s. y: %s" % (choque[f].x,choque[f].y))
