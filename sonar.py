@@ -6,6 +6,10 @@ from Point import *
 import math
 import threading
 from math import atan,sin,cos,asin,acos,pi
+def ccw(A, B, C):
+	return (C.y-A.y)*(B.x-A.x) > (B.y-A.y)*(C.x-A.x)
+def intersect(A, B, C, D):
+	return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 def getAngulo(p1:Point,p2:Point):
     if p1.x==p2.x:
         if p1.y<p2.y:
@@ -46,7 +50,9 @@ class Sonar:
          for _ in range(50):
             direccion=random.uniform(self.low,self.high)
             finalLinea=(self.pos.x+300*cos(direccion),self.pos.y+300*sin(direccion))
-            pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
+            conjunto_rayos.append(
+            	([Point(self.pos.x, self.pos.y), Point(finalLinea[0], finalLinea[1])]))
+            #pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
                 #px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
@@ -87,6 +93,7 @@ blue=(0,0,255)
 white=(255,255,255)
 black=(0,0,0)
 grisamarillento=(149, 150, 80)
+conjunto_rayos = []
 
 #pygame stuff
 h,w=550,550
@@ -102,7 +109,7 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(200,300),pi*5/6,pi*2/3)
+sonar=Sonar(Point(200,370),0,pi*5/6)
 
 #warning, point order affects intersection test!!
 segments = [
@@ -124,6 +131,30 @@ for i in segments:
 t = threading.Thread(target = sonar.ejecutar)
 t.setDaemon(True) 
 t.start()
+
+#for i in conjunto_rayos:
+#    pygame.draw.line(screen, grisamarillento, (i[0].x, i[0].y), (i[1].x, i[1].y), 2)
+
+conjunto_aleatorio = []
+total_rayos_aleatorios = random.randint(10, 20)
+for num in range(0,total_rayos_aleatorios):
+    rayo_aleatorio = random.randint(0,len(conjunto_rayos)-1)
+    rayo = conjunto_rayos.pop(rayo_aleatorio)
+    conjunto_aleatorio.append(rayo)
+for i in conjunto_aleatorio:
+    pygame.draw.line(screen, grisamarillento, (i[0].x, i[0].y), (i[1].x, i[1].y), 1)
+print("Total de rayos %s" % len(conjunto_aleatorio))
+
+grupo_choque = []
+for imp1 in conjunto_aleatorio:
+    for imp2 in segments:
+        if intersect(imp1[0],imp1[1],imp2[0],imp2[1]):
+            grupo_choque.append(
+            	([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), Point(imp2[0].x, imp2[0].y), Point(imp2[1].x, imp2[1].y)]))
+
+for list in grupo_choque:
+    print("Choque del rayo con la pared: RayoInicio: (%s,%s). RayoFinal: (%s,%s). ParedInicio: (%s,%s). ParedFinal: (%s,%s)" % (
+    	list[0].x, list[0].y, list[1].x, list[1].y, list[2].x, list[2].y, list[3].x, list[3].y))
 
 #main loop
 done=False
