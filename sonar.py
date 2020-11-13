@@ -62,13 +62,13 @@ class Sonar:
     def ejecutar(self):
          for _ in range(50):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
-            anguloReflejoHipot=self.obtenerAnguloDeReflexion(pi,rayoPrimigenio.direccion)
+            anguloReflejoHipot=self.obtenerAnguloDeReflexion(-pi/4,rayoPrimigenio.direccion)
             #resultados=rayoPrimigenio.lanzar()
             finalLinea=(self.pos.x+300*cos(rayoPrimigenio.direccion),self.pos.y+300*sin(rayoPrimigenio.direccion))
             finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
             
             pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
-            pygame.draw.line(screen, (0, 105, 77),finalLinea,finalRayoHipot,1)
+            pygame.draw.line(screen, (0, 145, 77),finalLinea,finalRayoHipot,1)
             
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
@@ -78,6 +78,7 @@ class Sonar:
             angulo+=2*pi*(1-2*(angulo>pi))
         return angulo
     def obtenerAnguloDeReflexion(self,s,r):
+        s+=pi/2
         return pi-(r-s)+s
     def compararAngulos(self,cita,cita0):
         return pow(cos(cita-cita0),2)
