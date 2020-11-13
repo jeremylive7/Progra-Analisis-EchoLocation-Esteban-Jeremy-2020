@@ -44,7 +44,7 @@ class Rayo:
         #anguloDeIncidencia=obtenerAnguloDeReflexion(segmentoConQueChoca,direccion)
         
         for _ in range(CANT_RAYOS_MONTECARLO):
-            nuevoRayo=Rayo(anguloReflexion,puntoChoque,distancia=origen.distancia(puntoChoque),nuevaEnergia)
+            nuevoRayo=Rayo(anguloReflexion,puntoChoque,distancia=origen.distancia(puntoChoque),energia=nuevaEnergia)
 
             resultados+=nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
@@ -62,9 +62,14 @@ class Sonar:
     def ejecutar(self):
          for _ in range(50):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
+            anguloReflejoHipot=self.obtenerAnguloDeReflexion(pi,rayoPrimigenio.direccion)
             #resultados=rayoPrimigenio.lanzar()
             finalLinea=(self.pos.x+300*cos(rayoPrimigenio.direccion),self.pos.y+300*sin(rayoPrimigenio.direccion))
+            finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
+            
             pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
+            pygame.draw.line(screen, (0, 105, 77),finalLinea,finalRayoHipot,1)
+            
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
                 #px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
@@ -105,7 +110,7 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(400,300),0,500*pi/4)
+sonar=Sonar(Point(400,300),-4*pi/5,3*pi/4)
 
 #warning, point order affects intersection test!!
 segments = [
