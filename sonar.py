@@ -3,9 +3,19 @@ import pygame
 import random
 from PIL import Image
 from Point import *
+import rt
 import math
 import threading
 from math import atan,sin,cos,asin,acos,pi
+#out = []
+def getRoute(start: Point, end: Point, totalSteps: int):
+    out = []
+    for i in range(0, totalSteps):
+        tempX = start.x+(end.x-start.x)*i/totalSteps
+        tempY = start.y+(end.y-start.y)*i/totalSteps
+        out.append(Point(tempX, tempY))
+    return out
+    
 def ccw(A, B, C):
 	return (C.y-A.y)*(B.x-A.x) > (B.y-A.y)*(C.x-A.x)
 def intersect(A, B, C, D):
@@ -108,8 +118,6 @@ clock = pygame.time.Clock()
 #init random
 random.seed()
 
-# posición del sonar
-
 # posición de los angulos
 angulos_direcciones = [0, pi*5/6, pi*3/4, pi*2/3, pi/2, pi/3, pi/4, pi/6, pi, -pi/6, -pi/4, -pi/3, -pi/2, -pi*2/3, -pi*3/4, -pi*5/6]
 largo_angulos_posibles = len(angulos_direcciones)-1
@@ -138,8 +146,23 @@ segments = [
             ([Point(180, 250), Point(180, 135)]),
             ]
 
+#Matriz de pixeles
+#matriz_pixeles = pygame.PixelArray(screen)
+#for i in segments:
+#    imp_y = i[1].y
+#    for imp_x in range(i[0].x, i[1].x):
+#        matriz_pixeles[imp_x][imp_y] = white
+
+#for i in segments:
+#    trayectoria_pared = getRoute(Point(i[0].x, i[0].y), Point(i[1].x, i[1].y), 300)
+#    for hp in trayectoria_pared:
+#        print(hp.x)
+#        print(hp.y)
+#        matriz_pixeles[hp.x][hp.y] = white
+
 for i in segments:
-    pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 2)
+    pygame.draw.line(screen, blue, (i[0].x, i[0].y), (i[1].x, i[1].y), 2)
+
 
 #thread setup
 t = threading.Thread(target = sonar.ejecutar)
@@ -159,15 +182,48 @@ for i in conjunto_aleatorio:
     pygame.draw.line(screen, grisamarillento, (i[0].x, i[0].y), (i[1].x, i[1].y), 1)
 print("Total de rayos %s" % len(conjunto_aleatorio))
 
+choque = []
 grupo_choque = []
 for imp1 in conjunto_aleatorio:
     for imp2 in segments:
         if intersect(imp1[0],imp1[1],imp2[0],imp2[1]):
-            grupo_choque.append(
-            	([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), Point(imp2[0].x, imp2[0].y), Point(imp2[1].x, imp2[1].y)]))
-for list in grupo_choque:
-    print("Choque del rayo con la pared: RayoInicio: (%s,%s). RayoFinal: (%s,%s). ParedInicio: (%s,%s). ParedFinal: (%s,%s)" % (
-    	list[0].x, list[0].y, list[1].x, list[1].y, list[2].x, list[2].y, list[3].x, list[3].y))
+            grupo_choque.append(([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), Point(imp2[0].x, imp2[0].y), Point(imp2[1].x, imp2[1].y)]))
+            #choque.append(rt.raySegmentIntersect(imp1[0], imp1[1], imp2[0], imp2[1]))
+            #choque.append((imp2[0].x - imp1[0].x) * (imp2[1].y - imp1[0].y) -
+            #              (imp2[1].x - imp1[0].x) * (imp2[0].y - imp1[0].y))
+
+
+#Matriz de pixeles
+matriz_pixeles = pygame.PixelArray(screen)
+for hp in grupo_choque:
+    trayectoria_rayo = getRoute(hp[0], hp[1], 300)
+    #trayectoria_pared = getRoute(hp[2], hp[3], 300)
+    for h in trayectoria_rayo:
+        x = int(h.x)
+        y = int(h.y)
+        #print(matriz_pixeles[x][y] == screen.map_rgb(blue))
+        if matriz_pixeles[x][y] == screen.map_rgb(blue):
+            choque.append(Point(x,y))
+
+for f in range(0,len(choque)-1):
+    print("Colision: x: %s. y: %s" % (choque[f].x,choque[f].y))
+
+#for punto in out:
+    #   if hayPared(punto):
+    #      print(f"Choca en el punto ({punto.x}, {punto.y})")
+
+
+#for f in range(0,len(out)-1):
+#    print("Colision: x: %s. y: %s" % (out[f].x,out[f].y))
+
+#for list in grupo_choque:
+#    print("Choque del rayo con la pared: RayoInicio: (%s,%s). RayoFinal: (%s,%s). ParedInicio: (%s,%s). ParedFinal: (%s,%s)" % (
+#    	list[0].x, list[0].y, list[1].x, list[1].y, list[2].x, list[2].y, list[3].x, list[3].y))
+
+#Matriz de pixeles
+#matriz_pixeles = pygame.PixelArray(screen)
+#for i in out:
+#    matriz_pixeles[i.x][i.y] = white
 
 
 
