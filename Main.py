@@ -82,7 +82,6 @@ pos_rayo_y = sonar[1]
 #Conjunto de puntos que forman un rayo
 puntos_rayo_primario = []
 
-<<<<<<< Updated upstream
 #Matriz de pixeles
 matriz_pixeles = pygame.PixelArray(surface)
 matriz_pixeles[sonar[0]][sonar[1]] = WHITE
@@ -92,19 +91,10 @@ matriz_pixeles[sonar[0]][sonar[1]] = WHITE
 
 
         
-=======
->>>>>>> Stashed changes
 # ------------------------------
 # Clases y Funciones utilizadass
 # ------------------------------
 
-<<<<<<< Updated upstream
-#Metodos de obtencion de rayo reflector
-
-#Metodo de formula de reflexion difusa
-
-#Metodo de definir cuantas llamadas recursivas son
-=======
 
 
 #X += math.sin(rayo.angulo)*C
@@ -124,7 +114,6 @@ def prueba(x: int, y: int):
         puntos_rayo_primario.append(punto)
         x += 1
         y += 1
->>>>>>> Stashed changes
 
 def ejemplo1():
     prueba(sonar[0],sonar[1])
@@ -184,33 +173,6 @@ def main():
             if dist < (1 + 1):
                 print('Llego al sonar.')
 
-            #Colision con pared de la izquierda
-            for y in range(5,875):
-                dist2 = math.hypot(rayo.x - 5, rayo.y - y)
-                if dist2 < (1 + 1):
-                    print('Colision con pared de la izquierda')
-            
-            #Colision con pared de arriba
-            for h in range(5, 1035):
-                dist3 = math.hypot(rayo.x - h, rayo.y - 5)
-                if dist3 < (1 + 1):
-                    print('Colision con pared de arriba.')
-
-            #Colision con pared de abajo
-            for p in range(5, 1035):
-                dist4 = math.hypot(rayo.x - p, rayo.y - 875)
-                if dist4 < (1 + 1):
-                    print('Colision con pared de abajo.')
-                    print('rayo.x')
-                    print(rayo.x)
-                    print('rayo.y')
-                    print(rayo.y)
-
-            #Colision con pared de la derecha
-            for k in range(5, 875):
-                dist5 = math.hypot(rayo.x - 1035, rayo.y - k)
-                if dist5 < (1 + 1):
-                    print('Colision con pared de la derecha.')
            
             #distacia
             #mess='La distancia es de {}'.format( str(int(dist2)))
