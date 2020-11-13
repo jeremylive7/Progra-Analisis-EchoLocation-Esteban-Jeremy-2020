@@ -109,7 +109,21 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(200,370),0,pi*5/6)
+
+# posición de los angulos
+angulos_direcciones = [0, pi*5/6, pi*3/4, pi*2/3, pi/2, pi/3, pi/4, pi/6, pi, -pi/6, -pi/4, -pi/3, -pi/2, -pi*2/3, -pi*3/4, -pi*5/6]
+largo_angulos_posibles = len(angulos_direcciones)-1
+sonar_inicial_random = random.randint(0, largo_angulos_posibles)
+sonar_inicial = angulos_direcciones[sonar_inicial_random]
+angulo_limite_izquierda = sonar_inicial_random-1
+angulo_limite_derecha = sonar_inicial_random+1
+if angulo_limite_derecha > largo_angulos_posibles:
+    angulo_limite_derecha = 0
+if angulo_limite_izquierda < 0:
+    angulo_limite_izquierda = largo_angulos_posibles
+
+# Primera recursibidad
+sonar = Sonar(Point(200, 370), angulo_limite_izquierda, angulo_limite_derecha)
 
 #warning, point order affects intersection test!!
 segments = [
@@ -151,10 +165,11 @@ for imp1 in conjunto_aleatorio:
         if intersect(imp1[0],imp1[1],imp2[0],imp2[1]):
             grupo_choque.append(
             	([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), Point(imp2[0].x, imp2[0].y), Point(imp2[1].x, imp2[1].y)]))
-
 for list in grupo_choque:
     print("Choque del rayo con la pared: RayoInicio: (%s,%s). RayoFinal: (%s,%s). ParedInicio: (%s,%s). ParedFinal: (%s,%s)" % (
     	list[0].x, list[0].y, list[1].x, list[1].y, list[2].x, list[2].y, list[3].x, list[3].y))
+
+
 
 #main loop
 done=False
