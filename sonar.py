@@ -42,7 +42,7 @@ class Rayo:
         self.energia=energia
         self.distanciaRecorrida=distancia
     def getVectorDireccion(self):
-        return Point(sin(direccion),cos(direccion))
+        return Point(sin(self.direccion), cos(self.direccion))
     def parseResultado(self):
         return Resultado(self)
 class Sonar:
@@ -57,7 +57,7 @@ class Sonar:
         self.low=low
         self.high=high
     def ejecutar(self):
-         for _ in range(50):
+        for _ in range(50):
             direccion=random.uniform(self.low,self.high)
             finalLinea=(self.pos.x+150*cos(direccion),self.pos.y+150*sin(direccion))
             conjunto_rayos.append(([Point(self.pos.x, self.pos.y), Point(finalLinea[0], finalLinea[1]), direccion]))
@@ -157,6 +157,11 @@ segments = [
             ([Point(180, 286), Point(140, 286)]),
             ([Point(320, 320), Point(360, 320)]),
             ([Point(180, 250), Point(180, 135)]),
+            ([Point(520, 555), Point(415, 555)]),
+            ([Point(380, 590), Point(380, 486)]),
+            ([Point(380, 486), Point(340, 486)]),
+            ([Point(520, 520), Point(560, 520)]),
+            ([Point(380, 450), Point(380, 335)])
             ]
 for i in segments:
     pygame.draw.line(screen, blue, (i[0].x, i[0].y), (i[1].x, i[1].y), 2)
@@ -168,7 +173,7 @@ t.start()
 
 # Rayos
 conjunto_aleatorio = []
-total_rayos_aleatorios = random.randint(10, 20)
+total_rayos_aleatorios = random.randint(30, 40)
 for num in range(0,total_rayos_aleatorios):
     rayo_aleatorio = random.randint(0,len(conjunto_rayos)-1)
     rayo = conjunto_rayos.pop(rayo_aleatorio)
@@ -185,6 +190,7 @@ for imp1 in conjunto_aleatorio:
         if intersect(imp1[0],imp1[1],imp2[0],imp2[1]) and cont == 0:
             grupo_choque.append(([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), imp1[2]]))
             cont = 1
+            print("Distancia:%s" % imp1[2])
 
 # Matriz de pixeles, Rayo reflejado
 matriz_pixeles = pygame.PixelArray(screen)
@@ -203,7 +209,7 @@ for hp in grupo_choque:
         #print("trayectoria del rayo x:%s, y:%s" % (x, y))
         if cont == 0:
             rayo_eco.append(Point(x, y))
-        if matriz_pixeles[x][y] == screen.map_rgb(blue) and cont == 0:
+        if matriz_pixeles[x][y] != screen.map_rgb(black) and cont == 0:
             choque.append(Point(x,y))
             anguloReflejoHipot = obtenerAnguloDeReflexion2(pi, hp[2])
             finalRayoHipot = (x+150*cos(anguloReflejoHipot),
@@ -218,12 +224,12 @@ for f in range(0,len(choque)):
 print("len(grupo_choque):%s. len(choque):%s." %
       (len(grupo_choque), len(choque)))
 
-print("Rayos eco")
+print("Rayos eco: len(rayos_eco):%s" % len(rayos_ecos))
 for g in range(0, len(rayos_ecos)):
     for j in range(0, len(rayos_ecos[g])):
         pygame.draw.circle(screen, (191, 255, 244),(rayos_ecos[g][j].x, rayos_ecos[g][j].y), 1)
         #print("x:%s. y:%s" % (rayos_ecos[g][j].x, rayos_ecos[g][j].y))
-
+    
 #main loop
 done=False
 while not done:
