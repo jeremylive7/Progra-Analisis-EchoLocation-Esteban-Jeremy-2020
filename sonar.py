@@ -20,16 +20,21 @@ def getAngulo(p1:Point,p2:Point):
         return atan((p2.y-p1.y)/(p2.x-p1.x))
 class Resultado:
     def __init__(self,rayo):
-        self.posicion=4
+        self.x=3
+    def __init__(self):
+        pass
 class Rayo:
-    def __init__(self,direccion,origen,distancia=0,energia=255):
+    def __init__(self,direccion,origen,distancia=0,energia=255,direccionOriginal=None):
         self.direccion=direccion
+        if direccionOriginal==None:
+            self.direccionOriginal=direccion
         self.origen=origen
         self.energia=energia
         self.distanciaRecorrida=distancia
     def getVectorDireccion(self):
         return Point(sin(direccion),cos(direccion))
-    def parseResultado(self):
+    def parseResultado(self,distanciaFinal):
+        self.distanciaRecorrida+=distanciaFinal
         return Resultado(self)
     def lanzar(self,cantRecursividades=0,resultados=[],puntoChoque=None):
         if cantRecursividades>=2:
@@ -42,13 +47,25 @@ class Rayo:
         ##################################
         ## V2
         if puntoChoque==None:
-            puntoChoque=#Aquí debería hacer algo jaja
-        
+            puntoChoque=(0,0)#Aquí debería hacer algo jaja
+        resultadoRebote=Resultado()
+        resultadoRebote.x=cos(self.direccionOriginal)*self.distanciaRecorrida
+        resultadoRebote.y=sin(self.direccionOriginal)*self.distanciaRecorrida
+        e=self.simularGastoDeEnergiaPorAngulo(self.direccionOriginal+pi)
+        resultadoRebote.intensidad=(e,e,e)
+        resultados+=[resultadoRebote]
         for _ in range(CANT_RAYOS_MONTECARLO):
-            nuevoRayo=Rayo(anguloReflexion,puntoChoque,distancia=origen.distancia(puntoChoque),energia=nuevaEnergia)
+            nuevoRayo=Rayo(self.direccion,puntoChoque,distancia=origen.distancia(puntoChoque),energia=nuevaEnergia)
 
             resultados+=nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
+    def compararAngulos(self,cita,cita0):
+        return pow(cos(cita-cita0),2)
+    def simularGastoDeEnergiaPorAngulo(self,b):
+        """
+        Simula gastar energía y retorna la energía resultante.
+        """
+        return self.energia-K*self.compararAngulos(b,self.direccion)
 class Sonar:
     def __init__(self,posicion:Point,low:float,high:float):
         self.pos:Point=posicion
@@ -63,19 +80,21 @@ class Sonar:
     def ejecutar(self):
          for _ in range(50):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
-            anguloReflejoHipot=self.obtenerAnguloDeReflexion(-pi/4,rayoPrimigenio.direccion)
+            anguloReflejoHipot=self.obtenerAnguloDeReflexion(-pi/2,rayoPrimigenio.direccion)
             puntoChoqueHipot=(self.pos.x+300*cos(rayoPrimigenio.direccion),self.pos.y+300*sin(rayoPrimigenio.direccion))
-            rayoReflejado=Rayo(anguloReflejoHipot,puntoChoqueHipot,300,self.self.simularGastoDeEnergia(rayoPrimigenio.energia,rayoPrimigenio.direccion,anguloReflejoHipot,))
-            resultados=rayoPrimigenio.lanzar(puntoChoque=puntoChoqueHipot)
+            rayoReflejado=Rayo(anguloReflejoHipot,puntoChoqueHipot,300,rayoPrimigenio.energia-5)
             
-           
-            finalLinea=puntoChoqueHipot
-            finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
+            resultados=rayoReflejado.lanzar(puntoChoque=puntoChoqueHipot)
+            resultadoRebotePerfecto=resultados[0]
+            #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
             
-            energiaRebote=self.simularGastoDeEnergia(rayoPrimigenio.energia,rayoPrimigenio.direccion,anguloReflejoHipot,)
+            px[int(resultadoRebotePerfecto.x)][int(resultadoRebotePerfecto.y)]=resultadoRebotePerfecto.intensidad
 
-            pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
-            pygame.draw.line(screen, (0, 145, 77),finalLinea,finalRayoHipot,1)
+            #finalLinea=puntoChoqueHipot
+            #finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
+            
+            #pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
+            #pygame.draw.line(screen, (0, 145, 77),finalLinea,finalRayoHipot,1)
             
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
@@ -87,15 +106,8 @@ class Sonar:
     def obtenerAnguloDeReflexion(self,s,r):
         s+=pi/2
         return pi-(r-s)+s
-    def compararAngulos(self,cita,cita0):
-        return pow(cos(cita-cita0),2)
     
-    def simularGastoDeEnergia(self,energia,b,anguloDeReflejo):
-        """
-        Simula gastar energía y retorna la energía resultante.
-        """
-        energia-=K*compararAngulos(b,anguloDeReflejo)
-        return energia
+    
     
 
 # COLORS
@@ -122,6 +134,8 @@ random.seed()
 # posición del sonar
 sonar=Sonar(Point(400,300),-4*pi/5,3*pi/4)
 K=10 #TOTALMENTE ARBITRARIO, se puede poner cualquier valor para probar :v
+CANT_RAYOS_MONTECARLO=0
+
 #warning, point order affects intersection test!!
 segments = [
             ([Point(180, 135), Point(215, 135)]), 

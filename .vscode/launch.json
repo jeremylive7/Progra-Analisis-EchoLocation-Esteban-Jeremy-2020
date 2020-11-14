@@ -10,7 +10,7 @@
             "type": "python",
             "request": "launch",
             "program": "sonar.py",
-            "console": "externalTerminal"
+            "console": "internalConsole"
         }
     ]
 }
