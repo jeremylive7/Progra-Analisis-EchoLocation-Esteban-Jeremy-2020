@@ -173,8 +173,8 @@ for num in range(0,total_rayos_aleatorios):
     rayo_aleatorio = random.randint(0,len(conjunto_rayos)-1)
     rayo = conjunto_rayos.pop(rayo_aleatorio)
     conjunto_aleatorio.append(rayo)
-for i in conjunto_aleatorio:
-    pygame.draw.line(screen, grisamarillento, (i[0].x, i[0].y), (i[1].x, i[1].y), 1)
+#for i in conjunto_aleatorio:
+ #   pygame.draw.line(screen, grisamarillento, (i[0].x, i[0].y), (i[1].x, i[1].y), 1)
 print("Total de rayos %s" % len(conjunto_aleatorio))
 
 # Intersección
@@ -189,16 +189,20 @@ for imp1 in conjunto_aleatorio:
 # Matriz de pixeles, Rayo reflejado
 matriz_pixeles = pygame.PixelArray(screen)
 choque = []
+rayos_ecos = []
 for hp in grupo_choque:
     hp1x = int(round(hp[1].x))
     hp1y = int(round(hp[1].y))
     #print("Inicio-> x:%s. y:%s. Final-> x:%s. y:%s." % (hp[0].x, hp[0].y, hp1x, hp1y))
     cont = 0
+    rayo_eco = []
     trayectoria_rayo = getRoute(hp[0], Point(hp1x, hp1y), (300))
     for h in trayectoria_rayo:
         x = int(round(h.x))
         y = int(round(h.y))
         #print("trayectoria del rayo x:%s, y:%s" % (x, y))
+        if cont == 0:
+            rayo_eco.append(Point(x, y))
         if matriz_pixeles[x][y] == screen.map_rgb(blue) and cont == 0:
             choque.append(Point(x,y))
             anguloReflejoHipot = obtenerAnguloDeReflexion2(pi, hp[2])
@@ -206,10 +210,19 @@ for hp in grupo_choque:
                               y+150*sin(anguloReflejoHipot))
             pygame.draw.line(screen, (0, 105, 77), (x, y), finalRayoHipot, 1)
             cont = 1
+            
+    rayos_ecos.append(rayo_eco)
+
 for f in range(0,len(choque)):
     print("Colision: x: %s. y: %s" % (choque[f].x,choque[f].y))
 print("len(grupo_choque):%s. len(choque):%s." %
       (len(grupo_choque), len(choque)))
+
+print("Rayos eco")
+for g in range(0, len(rayos_ecos)):
+    for j in range(0, len(rayos_ecos[g])):
+        pygame.draw.circle(screen, (191, 255, 244),(rayos_ecos[g][j].x, rayos_ecos[g][j].y), 1)
+        #print("x:%s. y:%s" % (rayos_ecos[g][j].x, rayos_ecos[g][j].y))
 
 #main loop
 done=False
