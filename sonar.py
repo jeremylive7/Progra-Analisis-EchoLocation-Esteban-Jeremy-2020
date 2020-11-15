@@ -2,10 +2,10 @@ import numpy as np
 import pygame
 import random
 from PIL import Image
-from Point import *
 import math
 import threading
-from math import atan,sin,cos,asin,acos,pi,inf
+from shapely.geometry import LineString as Line,Point
+from math import atan,sin,cos,asin,acos,pi
 def getAngulo(p1:Point,p2:Point):
     if p1.x==p2.x:
         if p1.y<p2.y:
@@ -27,32 +27,39 @@ def compararAngulos(cita,cita0):
     return pow(cos(cita-cita0),2)
 class Resultado:
     def __init__(self,rayo):
-        self.x=cos(rayo.direccionOriginal)*rayo.distanciaRecorrida
-        self.y=sin(rayo.direccionOriginal)*rayo.distanciaRecorrida
+        d=rayo.distanciaRecorrida/2
+        self.x=sonar.pos.x+cos(rayo.direccionOriginal)*d
+        self.y=+sonar.pos.y+sin(rayo.direccionOriginal)*d
         e=rayo.energia
         self.intensidad=(e,e,e)
 
 class Rayo:
+    def pintar(self):
+        p=getPuntoFromAnguloAndDistancia(self.direccion,self.origen,50)
+        pygame.draw.line(screen,red,(self.origen.x,self.origen.y),(p.x,p.y),1)
     def __init__(self,direccion,origen,distancia=0,energia=255,direccionOriginal=None):
         self.direccion=direccion
         if direccionOriginal==None:
             self.direccionOriginal=direccion
+        else:
+            self.direccionOriginal=direccionOriginal
         self.origen=origen
         self.energia=energia
         self.distanciaRecorrida=distancia
+
     def getVectorDireccion(self):
         return Point(sin(direccion),cos(direccion))
-    def parseResultado(self,distanciaFinal):
-        self.distanciaRecorrida+=distanciaFinal
-        return Resultado(self)
+
     def restarEnergiaPorDistancia(self,fin):
-        self.energia-=H*origen.distancia(fin)
+        self.energia-=H*self.origen.distance(fin)
         return self.energia
-    def puedeLlegarHastaElSonar(self): return True
     def lanzar(self,cantRecursividades=0,resultados=[]):
         if cantRecursividades>=2:
             return resultados
         if sonar.loEscucha(self):
+            puntoChoque=sonar.pos
+            self.distanciaRecorrida+=self.origen.distance(puntoChoque)
+            self.restarEnergiaPorDistancia(puntoChoque)
             resultados += [Resultado(self)]
             return resultados
         
@@ -60,30 +67,37 @@ class Rayo:
         choques=[]
         for pared in segments:
             choque=self.getChoqueIfChoca(pared)
-            if choque!=False:
-                choques+=[pared,choque]
+            if choque!=False and choque!=self.origen:
+                choques+=[[pared,choque]]
         if len(choques)==0:
             return resultados
 
         minimo=999999
         choque=None
         for x in choques:
-            if x[1].distancia(self.origen)<minimo:
-                minimo=x[1].distancia(self.origen)
+            if x[1].distance(self.origen)<minimo:
+                minimo=x[1].distance(self.origen)
                 choque=x
 
         ## Del choque más cercano nos importa el ángulo de la pared con la que choca y el punto de choque.
-        anguloPared=getAngulo(choque[1][0],choque[1][1])
+        
+        #self.pintar()
+        
+        anguloPared=getAngulo(choque[0][0],choque[0][1])
         puntoChoque=choque[1]
-        anguloReflejo=self.obtenerAnguloDeReflexion(anguloPared,self.direccion)
-
+        anguloReflejo=obtenerAnguloDeReflexion(anguloPared,self.direccion)
+        
         #Se realiza la simulación de que el rayo llega a la pared
-        self.distanciaRecorrida+=self.origen.distancia(puntoChoque)
+        self.distanciaRecorrida+=self.origen.distance(puntoChoque)
         self.restarEnergiaPorDistancia(puntoChoque)
 
         #Se crean y se lanzan los rayos indispensables, el que continúa sobre el ángulo de reflejo y el que se devuelve por donde vino
         rayoReflejado=Rayo(anguloReflejo,puntoChoque,self.distanciaRecorrida,self.energia,self.direccionOriginal)
         rayoOmega=Rayo(self.direccion+pi,puntoChoque,self.distanciaRecorrida,self.restarEnergiaPorAngulo(self.direccion+pi),self.direccionOriginal)
+        
+        #rayoOmega.pintar()
+        #rayoReflejado.pintar()
+
         rayoReflejado.lanzar(cantRecursividades+1,resultados)
         rayoOmega.lanzar(cantRecursividades+1,resultados)
         
@@ -96,34 +110,16 @@ class Rayo:
         """
         Simula gastar energía y retorna la energía resultante.
         """
-        return self.energia-K*self.compararAngulos(b,self.direccion)
+        return self.energia-K*compararAngulos(b,self.direccion)
     def getChoqueIfChoca(self,pared):
-        X1=pared[0].x
-        X2=pared[1].x
-        Y1=pared[0].y
-        Y2=pared[1].y
-        X3=self.origen.x
         finRayo=getPuntoFromAnguloAndDistancia(self.direccion,self.origen)
-        X4=finRayo.x
-        Y3=self.origen.y
-        Y4=finRayo.y
-        if max(X1,X2)<min(X3,X4):
-            return False
-        if X1==X2: 
-            A1=inf
-        else:
-            A1=(Y1-Y2)/(X1-X2)
-        if X3==X4:
-            A2=inf
-        else:
-            A2=(Y3-Y4)/(X3-X4)
-        if A1==A2:
-            return False
-        b1=Y1-A1*X1
-        b2=Y3-A2*X3
-        Xi=(b2-b1)/(A1-A2)
-        Yi=A1*Xi+b1
-        if Xi<max(min(X1,X2),min(X3,X4))or Xi > min(max(X1,X2),max(X3,X4)):
+        pared=Line([(pared[0].x,pared[0].y),(pared[1].x,pared[1].y)])
+        rayo=Line([(self.origen.x,self.origen.y),(finRayo.x,finRayo.y)])
+        interseccion=pared.intersection(rayo)
+        try:
+            Xi=interseccion.x
+            Yi=interseccion.y
+        except:
             return False
         return Point(Xi,Yi)
 class Sonar:
@@ -138,25 +134,27 @@ class Sonar:
         self.low=low
         self.high=high
     def loEscucha(self,rayo):
-        distancia=self.pos.distancia(rayo.origen)
+        if rayo.origen==self.pos:
+            return False
+        distancia=self.pos.distance(rayo.origen)
         p=Point(rayo.origen.x+distancia*cos(rayo.direccion),rayo.origen.y+distancia*sin(rayo.direccion))
-        if p.distancia(self.pos)>10:
+        if p.distance(self.pos)>10:
             return False
         for pared in segments:
             choque=rayo.getChoqueIfChoca(pared)
-            if choque!=False and distancia>choque[1].distancia(rayo.origen):
+            if choque!=False and distancia>choque.distance(rayo.origen)and choque.distance(self.pos)<distancia:
                 return False
         return True
 
     def ejecutar(self):
         for _ in range(50):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
-            
-            resultados=rayoPrimigenio.lanzar(puntoChoque=puntoChoqueHipot)
-            resultadoRebotePerfecto=resultados[0]
-            #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
-            
-            px[int(resultadoRebotePerfecto.x)][int(resultadoRebotePerfecto.y)]=resultadoRebotePerfecto.intensidad
+            resultados=rayoPrimigenio.lanzar()
+            if len(resultados)>0:
+                for resultadoRebotePerfecto in resultados:
+                    #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
+                    #pygame.draw.circle(screen,resultadoRebotePerfecto.intensidad,(int(resultadoRebotePerfecto.x),int(resultadoRebotePerfecto.y)),2)
+                    px[int(resultadoRebotePerfecto.x)][int(resultadoRebotePerfecto.y)]=resultadoRebotePerfecto.intensidad
 
             #finalLinea=puntoChoqueHipot
             #finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
@@ -179,7 +177,7 @@ class Sonar:
 # COLORS
 red=(255,0,0)
 green=(0,255,0)
-blue=(0,0,255)
+blue=(0,0,125)
 white=(255,255,255)
 black=(0,0,0)
 grisamarillento=(149, 150, 80)
@@ -199,6 +197,7 @@ random.seed()
 
 # posición del sonar
 sonar=Sonar(Point(400,300),-4*pi/5,3*pi/4)
+px[int(sonar.pos.x)][int(sonar.pos.y)]=red
 K=10 #Para pérdida de energía por el ángulo
 H=1/4#Para pérdida de energía por distancia
 CANT_RAYOS_MONTECARLO=0
@@ -217,7 +216,7 @@ segments = [
             ]
 
 for i in segments:
-    pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 2)
+    pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 1)
 
 #thread setup
 t = threading.Thread(target = sonar.ejecutar)
