@@ -177,8 +177,8 @@ aleatorio_posicion_sonar_x = random.randint(x_limite_sonar_izq, x_limite_sonar_d
 aleatorio_posicion_sonar_y = random.randint(y_limite_sonar_izq, y_limite_sonar_der)
 
 # Primera recursibidad
-sonar = Sonar(Point(250,250),
-              angulo_limite_izquierda, angulo_limite_derecha)
+sonar = Sonar(Point(250, 250),angulo_limite_izquierda, angulo_limite_derecha)
+#sonar = Sonar(Point(aleatorio_posicion_sonar_x, aleatorio_posicion_sonar_y),angulo_limite_izquierda, angulo_limite_derecha)
 
 #warning, point order affects intersection test!!
 segments = [
@@ -260,9 +260,9 @@ print("len(grupo_choque):%s. len(choque):%s." %
       (len(grupo_choque), len(choque)))
 
 print("Rayos eco: len(rayos_eco):%s" % len(rayos_ecos))
-for g in range(0, len(rayos_ecos)):
-    for j in range(0, len(rayos_ecos[g])):
-        pygame.draw.circle(screen, (191, 255, 244),(rayos_ecos[g][j].x, rayos_ecos[g][j].y), 1)
+#for g in range(0, len(rayos_ecos)):
+#    for j in range(0, len(rayos_ecos[g])):
+#        pygame.draw.circle(screen, (191, 255, 244),(rayos_ecos[g][j].x, rayos_ecos[g][j].y), 0)
         #print("x:%s. y:%s" % (rayos_ecos[g][j].x, rayos_ecos[g][j].y))
     
 #main loop
