@@ -134,6 +134,9 @@ def obtenerAnguloDeReflexion2(s, r):
     s+=pi/2
     return pi-(r-s)+s
 
+
+#Global
+conjunto_rayos = []
 # COLORS
 red=(255,0,0)
 green=(0,255,0)
@@ -141,17 +144,125 @@ blue=(0,0,255)
 white=(255,255,255)
 black=(0,0,0)
 grisamarillento=(149, 150, 80)
-conjunto_rayos = []
+scale = [(0,0,0),
+(8,8,8),
+(16,16,16),
+(24,24,24),
+(32,32,32),
+(40,40,40),
+(48,48,48),
+(56,56,56),
+(64,64,64),
+(72,72,72),
+(80,80,80),
+(88,88,88),
+(96,96,96),
+(104,104,104),
+(112,112,112),
+(120,120,120),
+(128,128,128),
+(136,136,136),
+(144,144,144),
+(152,152,152),
+(160,160,160),
+(168,168,168),
+(176,176,176),
+(184,184,184),
+(192,192,192),
+(200,200,200),
+(208,208,208),
+(216,216,216),
+(224,224,224),
+(232,232,232),
+(240,240,240),
+(248,248,248),
+(255,255,255)]
+scale.reverse()
 
 #pygame stuff
-h,w=550,550
-border=50
+h, w = 550, 550
+border = 50
 pygame.init()
 screen = pygame.display.set_mode((w+(2*border), h+(2*border)))
 screen.fill(black)
-px=pygame.PixelArray(screen)
+px = pygame.PixelArray(screen)
 pygame.display.set_caption("2D Raytracing")
 clock = pygame.time.Clock()
+
+def pintaColisionEscalable(punto_choque, energia: int):
+    #Divido las escala de grises para tener rangos de referencia para cada cantidad de energia
+    print("len(scale):%s" % len(scale))
+    if(energia >= 0 and energia <= 7):
+        pygame.draw.circle(screen,scale[0],punto_choque,1)
+    if(energia >= 8 and energia <= 15):
+        pygame.draw.circle(screen,scale[1],punto_choque,1)
+    if(energia >= 16 and energia <= 23):
+        pygame.draw.circle(screen,scale[2],punto_choque,1)
+    if(energia >= 24 and energia <= 31):
+        pygame.draw.circle(screen,scale[3],punto_choque,1)
+    if(energia >= 32 and energia <= 39):
+        pygame.draw.circle(screen,scale[4],punto_choque,1)
+    if(energia >= 40 and energia <= 47):
+        pygame.draw.circle(screen,scale[5],punto_choque,1)
+    if(energia >= 48 and energia <= 55):
+        pygame.draw.circle(screen,scale[6],punto_choque,1)
+    if(energia >= 56 and energia <= 63):
+        pygame.draw.circle(screen,scale[7],punto_choque,1)
+    if(energia >= 64 and energia <= 71):
+        pygame.draw.circle(screen,scale[8],punto_choque,1)
+    if(energia >= 72 and energia <= 79):
+        pygame.draw.circle(screen,scale[9],punto_choque,1)
+    if(energia >= 80 and energia <= 87):
+        pygame.draw.circle(screen,scale[10],punto_choque,1)
+    if(energia >= 88 and energia <= 95):
+        pygame.draw.circle(screen,scale[11],punto_choque,1)
+    if(energia >= 96 and energia <= 103):
+        pygame.draw.circle(screen,scale[12],punto_choque,1)
+    if(energia >= 104 and energia <= 111):
+        pygame.draw.circle(screen, scale[13], punto_choque, 1)
+    if(energia >= 112 and energia <= 119):
+        pygame.draw.circle(screen, scale[14], punto_choque, 1)
+    if(energia >= 120 and energia <= 127):
+        pygame.draw.circle(screen, scale[15], punto_choque, 1)
+    if(energia >= 128 and energia <= 135):
+        pygame.draw.circle(screen, scale[16], punto_choque, 1)
+    if(energia >= 136 and energia <= 143):
+        pygame.draw.circle(screen, scale[17], punto_choque, 1)
+    if(energia >= 144 and energia <= 151):
+        pygame.draw.circle(screen, scale[18], punto_choque, 1)
+    if(energia >= 152 and energia <= 159):
+        pygame.draw.circle(screen, scale[19], punto_choque, 1)
+    if(energia >= 160 and energia <= 167):
+        pygame.draw.circle(screen, scale[20], punto_choque, 1)
+    if(energia >= 168 and energia <= 175):
+        pygame.draw.circle(screen, scale[21], punto_choque, 1)
+    if(energia >= 176 and energia <= 183):
+        pygame.draw.circle(screen, scale[22], punto_choque, 1)
+    if(energia >= 184 and energia <= 191):
+        pygame.draw.circle(screen, scale[23], punto_choque, 1)
+    if(energia >= 192 and energia <= 199):
+        pygame.draw.circle(screen, scale[24], punto_choque, 1)
+    if(energia >= 200 and energia <= 207):
+        pygame.draw.circle(screen, scale[25], punto_choque, 1)
+    if(energia >= 208 and energia <= 215):
+        pygame.draw.circle(screen, scale[26], punto_choque, 1)
+    if(energia >= 216 and energia <= 223):
+        pygame.draw.circle(screen, scale[27], punto_choque, 1)
+    if(energia >= 224 and energia <= 231):
+        pygame.draw.circle(screen, scale[28], punto_choque, 1)
+    if(energia >= 232 and energia <= 239):
+        pygame.draw.circle(screen, scale[29], punto_choque, 1)
+    if(energia >= 240 and energia <= 246):
+        pygame.draw.circle(screen, scale[30], punto_choque, 1)
+    if(energia >= 247 and energia <= 250):
+        pygame.draw.circle(screen, scale[31], punto_choque, 1)
+    if(energia >= 251 and energia <= 255):
+        pygame.draw.circle(screen, scale[32], punto_choque, 1)
+
+
+pintaColisionEscalable((400, 600), 211)
+
+
 
 #init random
 random.seed()
