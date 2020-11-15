@@ -5,7 +5,7 @@ from PIL import Image
 from Point import *
 import math
 import threading
-from math import atan,sin,cos,asin,acos,pi
+from math import atan,sin,cos,asin,acos,pi,inf
 def getAngulo(p1:Point,p2:Point):
     if p1.x==p2.x:
         if p1.y<p2.y:
@@ -18,11 +18,17 @@ def getAngulo(p1:Point,p2:Point):
         return 0
     else:
         return atan((p2.y-p1.y)/(p2.x-p1.x))
+def obtenerAnguloDeReflexion(s,r):
+        s+=pi/2
+        return pi-(r-s)+s
+def getPuntoFromAnguloAndDistancia(angulo,origen=Point(0,0),distancia=9999):
+    return Point(distancia*cos(angulo)+origen.x,distancia*sin(angulo)+origen.y)
 class Resultado:
     def __init__(self,rayo):
         self.x=3
     def __init__(self):
         pass
+
 class Rayo:
     def __init__(self,direccion,origen,distancia=0,energia=255,direccionOriginal=None):
         self.direccion=direccion
@@ -36,6 +42,9 @@ class Rayo:
     def parseResultado(self,distanciaFinal):
         self.distanciaRecorrida+=distanciaFinal
         return Resultado(self)
+    def restarEnergiaPorDistancia(self,fin):
+        self.energia-=H*origen.distancia(fin)
+        return self.energia
     def lanzar(self,cantRecursividades=0,resultados=[],puntoChoque=None):
         if cantRecursividades>=2:
             return resultados
@@ -46,18 +55,25 @@ class Rayo:
         #anguloDeIncidencia=obtenerAnguloDeReflexion(segmentoConQueChoca,direccion)
         ##################################
         ## V2
-        if puntoChoque==None:
-            puntoChoque=(0,0)#Aquí debería hacer algo jaja
-        resultadoRebote=Resultado()
-        resultadoRebote.x=cos(self.direccionOriginal)*self.distanciaRecorrida
-        resultadoRebote.y=sin(self.direccionOriginal)*self.distanciaRecorrida
-        e=self.simularGastoDeEnergiaPorAngulo(self.direccionOriginal+pi)
-        resultadoRebote.intensidad=(e,e,e)
-        resultados+=[resultadoRebote]
-        for _ in range(CANT_RAYOS_MONTECARLO):
-            nuevoRayo=Rayo(self.direccion,puntoChoque,distancia=origen.distancia(puntoChoque),energia=nuevaEnergia)
+        for pared in segments:
+            choque=self.getChoqueIfChoca(pared)
+            if choque!=False:#Faltaría chequear que no se interpone nada entre esa pared y el origen del rayo T-T
+                anguloPared=getAngulo(pared[0],pared[1])
+                anguloReflejado=obtenerAnguloDeReflexion(anguloPared,self.direccion)
+                energiaHastaAqui=restarEnergiaPorDistancia(choque)
+                rayoReflejado=Rayo(anguloReflejado,choque,self.distanciaRecorrida,energiaHastaAqui)
+                resultados+=rayoReflejado.lanzar(cantRecursividades+1,resultados)
 
-            resultados+=nuevoRayo.lanzar(cantRecursividades+1, resultados)
+                resultadoRebote=Resultado()
+                resultadoRebote.x=cos(self.direccionOriginal)*self.distanciaRecorrida
+                resultadoRebote.y=sin(self.direccionOriginal)*self.distanciaRecorrida
+                e=self.simularGastoDeEnergiaPorAngulo(self.direccionOriginal+pi)
+                resultadoRebote.intensidad=(e,e,e)
+                resultados+=[resultadoRebote]
+                for _ in range(CANT_RAYOS_MONTECARLO):
+                    nuevoRayo=Rayo(self.direccion,puntoChoque,distancia=origen.distancia(puntoChoque),energia=nuevaEnergia)
+
+                    resultados+=nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
     def compararAngulos(self,cita,cita0):
         return pow(cos(cita-cita0),2)
@@ -66,6 +82,35 @@ class Rayo:
         Simula gastar energía y retorna la energía resultante.
         """
         return self.energia-K*self.compararAngulos(b,self.direccion)
+    def getChoqueIfChoca(self,pared):
+        X1=pared[0].x
+        X2=pared[1].x
+        Y1=pared[0].y
+        Y2=pared[1].y
+        X3=self.origen.x
+        finRayo=getPuntoFromAnguloAndDistancia(self.direccion,self.origen)
+        X4=finRayo.x
+        Y3=self.origen.y
+        Y4=finRayo.y
+        if max(X1,X2)<min(X3,X4):
+            return False
+        if X1==X2: 
+            A1=inf
+        else:
+            A1=(Y1-Y2)/(X1-X2)
+        if X3==X4:
+            A2=inf
+        else:
+            A2=(Y3-Y4)/(X3-X4)
+        if A1==A2:
+            return False
+        b1=Y1-A1*X1
+        b2=Y3-A2*X3
+        Xi=(b2-b1)/(A1-A2)
+        Yi=A1*Xi+b1
+        if Xi<max(min(X1,X2),min(X3,X4))or Xi > min(max(X1,X2),max(X3,X4)):
+            return False
+        return Point(Xi,Yi)
 class Sonar:
     def __init__(self,posicion:Point,low:float,high:float):
         self.pos:Point=posicion
@@ -78,7 +123,7 @@ class Sonar:
         self.low=low
         self.high=high
     def ejecutar(self):
-         for _ in range(50):
+        for _ in range(50):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
             anguloReflejoHipot=self.obtenerAnguloDeReflexion(-pi/2,rayoPrimigenio.direccion)
             puntoChoqueHipot=(self.pos.x+300*cos(rayoPrimigenio.direccion),self.pos.y+300*sin(rayoPrimigenio.direccion))
@@ -103,9 +148,7 @@ class Sonar:
         while angulo<-pi or angulo>pi:
             angulo+=2*pi*(1-2*(angulo>pi))
         return angulo
-    def obtenerAnguloDeReflexion(self,s,r):
-        s+=pi/2
-        return pi-(r-s)+s
+    
     
     
     
@@ -133,7 +176,8 @@ random.seed()
 
 # posición del sonar
 sonar=Sonar(Point(400,300),-4*pi/5,3*pi/4)
-K=10 #TOTALMENTE ARBITRARIO, se puede poner cualquier valor para probar :v
+K=10 #Para pérdida de energía por el ángulo
+H=1/4#Para pérdida de energía por distancia
 CANT_RAYOS_MONTECARLO=0
 
 #warning, point order affects intersection test!!
