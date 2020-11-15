@@ -23,11 +23,14 @@ def obtenerAnguloDeReflexion(s,r):
         return pi-(r-s)+s
 def getPuntoFromAnguloAndDistancia(angulo,origen=Point(0,0),distancia=9999):
     return Point(distancia*cos(angulo)+origen.x,distancia*sin(angulo)+origen.y)
+def compararAngulos(cita,cita0):
+    return pow(cos(cita-cita0),2)
 class Resultado:
     def __init__(self,rayo):
-        self.x=3
-    def __init__(self):
-        pass
+        self.x=cos(rayo.direccionOriginal)*rayo.distanciaRecorrida
+        self.y=sin(rayo.direccionOriginal)*rayo.distanciaRecorrida
+        e=rayo.energia
+        self.intensidad=(e,e,e)
 
 class Rayo:
     def __init__(self,direccion,origen,distancia=0,energia=255,direccionOriginal=None):
@@ -45,39 +48,51 @@ class Rayo:
     def restarEnergiaPorDistancia(self,fin):
         self.energia-=H*origen.distancia(fin)
         return self.energia
-    def lanzar(self,cantRecursividades=0,resultados=[],puntoChoque=None):
+    def puedeLlegarHastaElSonar(self): return True
+    def lanzar(self,cantRecursividades=0,resultados=[]):
         if cantRecursividades>=2:
             return resultados
-        ##  V1
-        #puntoQueChoca,segmentoConQueChoca=buscarPuntoDeImpacto(self.direccion,self.origen)#Considerando la oreja del sonar
-        #if self.loEscucha(puntoQueChoca): pass
-        #energia=restarEnergia(energia,origen,puntoQueChoca)        
-        #anguloDeIncidencia=obtenerAnguloDeReflexion(segmentoConQueChoca,direccion)
-        ##################################
-        ## V2
+        if sonar.loEscucha(self):
+            resultados += [Resultado(self)]
+            return resultados
+        
+        ##Encontrar donde choca
+        choques=[]
         for pared in segments:
             choque=self.getChoqueIfChoca(pared)
-            if choque!=False:#Faltaría chequear que no se interpone nada entre esa pared y el origen del rayo T-T
-                anguloPared=getAngulo(pared[0],pared[1])
-                anguloReflejado=obtenerAnguloDeReflexion(anguloPared,self.direccion)
-                energiaHastaAqui=restarEnergiaPorDistancia(choque)
-                rayoReflejado=Rayo(anguloReflejado,choque,self.distanciaRecorrida,energiaHastaAqui)
-                resultados+=rayoReflejado.lanzar(cantRecursividades+1,resultados)
+            if choque!=False:
+                choques+=[pared,choque]
+        if len(choques)==0:
+            return resultados
 
-                resultadoRebote=Resultado()
-                resultadoRebote.x=cos(self.direccionOriginal)*self.distanciaRecorrida
-                resultadoRebote.y=sin(self.direccionOriginal)*self.distanciaRecorrida
-                e=self.simularGastoDeEnergiaPorAngulo(self.direccionOriginal+pi)
-                resultadoRebote.intensidad=(e,e,e)
-                resultados+=[resultadoRebote]
-                for _ in range(CANT_RAYOS_MONTECARLO):
-                    nuevoRayo=Rayo(self.direccion,puntoChoque,distancia=origen.distancia(puntoChoque),energia=nuevaEnergia)
+        minimo=999999
+        choque=None
+        for x in choques:
+            if x[1].distancia(self.origen)<minimo:
+                minimo=x[1].distancia(self.origen)
+                choque=x
 
-                    resultados+=nuevoRayo.lanzar(cantRecursividades+1, resultados)
+        ## Del choque más cercano nos importa el ángulo de la pared con la que choca y el punto de choque.
+        anguloPared=getAngulo(choque[1][0],choque[1][1])
+        puntoChoque=choque[1]
+        anguloReflejo=self.obtenerAnguloDeReflexion(anguloPared,self.direccion)
+
+        #Se realiza la simulación de que el rayo llega a la pared
+        self.distanciaRecorrida+=self.origen.distancia(puntoChoque)
+        self.restarEnergiaPorDistancia(puntoChoque)
+
+        #Se crean y se lanzan los rayos indispensables, el que continúa sobre el ángulo de reflejo y el que se devuelve por donde vino
+        rayoReflejado=Rayo(anguloReflejo,puntoChoque,self.distanciaRecorrida,self.energia,self.direccionOriginal)
+        rayoOmega=Rayo(self.direccion+pi,puntoChoque,self.distanciaRecorrida,self.restarEnergiaPorAngulo(self.direccion+pi),self.direccionOriginal)
+        rayoReflejado.lanzar(cantRecursividades+1,resultados)
+        rayoOmega.lanzar(cantRecursividades+1,resultados)
+        
+        #Por último se tiran rayos secundarios desde self.origen, pierde energía respecto al ángulo de self.dirección y teniendo en cuenta el ángulo de visión que tiene jaja :'v
+        #for _ in range(CANT_RAYOS_MONTECARLO):
+            #nuevoRayo=Rayo(self.direccion,origen,self.distanciaRecorrida,self.energia,self.direccionOriginal)
+            #nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
-    def compararAngulos(self,cita,cita0):
-        return pow(cos(cita-cita0),2)
-    def simularGastoDeEnergiaPorAngulo(self,b):
+    def restarEnergiaPorAngulo(self,b):
         """
         Simula gastar energía y retorna la energía resultante.
         """
@@ -122,14 +137,22 @@ class Sonar:
             low=x
         self.low=low
         self.high=high
+    def loEscucha(self,rayo):
+        distancia=self.pos.distancia(rayo.origen)
+        p=Point(rayo.origen.x+distancia*cos(rayo.direccion),rayo.origen.y+distancia*sin(rayo.direccion))
+        if p.distancia(self.pos)>10:
+            return False
+        for pared in segments:
+            choque=rayo.getChoqueIfChoca(pared)
+            if choque!=False and distancia>choque[1].distancia(rayo.origen):
+                return False
+        return True
+
     def ejecutar(self):
         for _ in range(50):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
-            anguloReflejoHipot=self.obtenerAnguloDeReflexion(-pi/2,rayoPrimigenio.direccion)
-            puntoChoqueHipot=(self.pos.x+300*cos(rayoPrimigenio.direccion),self.pos.y+300*sin(rayoPrimigenio.direccion))
-            rayoReflejado=Rayo(anguloReflejoHipot,puntoChoqueHipot,300,rayoPrimigenio.energia-5)
             
-            resultados=rayoReflejado.lanzar(puntoChoque=puntoChoqueHipot)
+            resultados=rayoPrimigenio.lanzar(puntoChoque=puntoChoqueHipot)
             resultadoRebotePerfecto=resultados[0]
             #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
             
