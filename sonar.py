@@ -6,8 +6,40 @@ from Point import *
 import rt
 import math
 import threading
-from math import atan,sin,cos,asin,acos,pi,tan
+from math import atan,sin,cos,asin,acos,pi,tan,inf
 #out = []
+
+def getPuntoFromAnguloAndDistancia(angulo,origen=Point(0,0),distancia=9999):
+    return Point(distancia*cos(angulo)+origen.x,distancia*sin(angulo)+origen.y)
+def getChoqueIfChoca(rayo,pared):
+        X1=pared[0].x
+        X2=pared[1].x
+        Y1=pared[0].y
+        Y2=pared[1].y
+        X3=rayo.origen.x
+        finRayo=getPuntoFromAnguloAndDistancia(rayo.direccion,rayo.origen)
+        X4=finRayo.x
+        Y3=rayo.origen.y
+        Y4=finRayo.y
+        if max(X1,X2)<min(X3,X4):
+            return False
+        if X1==X2: 
+            A1=inf
+        else:
+            A1=(Y1-Y2)/(X1-X2)
+        if X3==X4:
+            A2=inf
+        else:
+            A2=(Y3-Y4)/(X3-X4)
+        if A1==A2:
+            return False
+        b1=Y1-A1*X1
+        b2=Y3-A2*X3
+        Xi=(b2-b1)/(A1-A2)
+        Yi=A1*Xi+b1
+        if Xi<max(min(X1,X2),min(X3,X4))or Xi > min(max(X1,X2),max(X3,X4)):
+            return False
+        return Point(Xi,Yi)
 def getRoute(start: Point, end: Point, totalSteps: int):
     out = []
     for i in range(0, totalSteps):
@@ -71,6 +103,7 @@ class Sonar:
             angulo+=2*pi*(1-2*(angulo>pi))
         return angulo
     def obtenerAnguloDeReflexion(self,s,r):
+        s+=p/2
         return pi-(r-s)+s
     def compararAngulos(self,cita,cita0):
         return pow(cos(cita-cita0),2)
@@ -98,6 +131,7 @@ class Sonar:
 
 
 def obtenerAnguloDeReflexion2(s, r):
+    s+=pi/2
     return pi-(r-s)+s
 
 # COLORS
@@ -143,7 +177,7 @@ aleatorio_posicion_sonar_x = random.randint(x_limite_sonar_izq, x_limite_sonar_d
 aleatorio_posicion_sonar_y = random.randint(y_limite_sonar_izq, y_limite_sonar_der)
 
 # Primera recursibidad
-sonar = Sonar(Point(aleatorio_posicion_sonar_x, aleatorio_posicion_sonar_y),
+sonar = Sonar(Point(250,250),
               angulo_limite_izquierda, angulo_limite_derecha)
 
 #warning, point order affects intersection test!!
@@ -167,9 +201,10 @@ for i in segments:
     pygame.draw.line(screen, blue, (i[0].x, i[0].y), (i[1].x, i[1].y), 2)
 
 #thread setup
-t = threading.Thread(target = sonar.ejecutar)
-t.setDaemon(True) 
-t.start()
+#t = threading.Thread(target = sonar.ejecutar)
+#t.setDaemon(True) 
+#t.start()
+sonar.ejecutar()
 
 # Rayos
 conjunto_aleatorio = []
@@ -209,12 +244,12 @@ for hp in grupo_choque:
         #print("trayectoria del rayo x:%s, y:%s" % (x, y))
         if cont == 0:
             rayo_eco.append(Point(x, y))
-        if matriz_pixeles[x][y] != screen.map_rgb(black) and cont == 0:
+        if matriz_pixeles[x][y] != screen.map_rgb(black) and matriz_pixeles[x][y] != screen.map_rgb(green) and cont == 0:
             choque.append(Point(x,y))
-            anguloReflejoHipot = obtenerAnguloDeReflexion2((getAngulo(hp[3], hp[4])), hp[2])
+            anguloReflejoHipot = obtenerAnguloDeReflexion2(getAngulo( hp[4], hp[3]),hp[2])
             finalRayoHipot = (x+150*cos(anguloReflejoHipot),
                               y+150*sin(anguloReflejoHipot))
-            pygame.draw.line(screen, (0, 105, 77), (x, y), finalRayoHipot, 1)
+            pygame.draw.line(screen, green, (x, y), finalRayoHipot, 1)
             cont = 1
             
     rayos_ecos.append(rayo_eco)
