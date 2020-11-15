@@ -76,6 +76,8 @@ class Rayo:
         return Point(sin(self.direccion), cos(self.direccion))
     def parseResultado(self):
         return Resultado(self)
+    def getString(self):
+        print("Direccion:%s. Origen:%s. Energia:%s. DistanciaRecorrida:%s" % (self.direccion, self.origen, self.energia, self.distanciaRecorrida))
 class Sonar:
     def __init__(self,posicion:Point,low:float,high:float):
         self.pos=posicion
@@ -224,6 +226,8 @@ for imp1 in conjunto_aleatorio:
 # Matriz de pixeles, Rayo reflejado
 matriz_pixeles = pygame.PixelArray(screen)
 choque = []
+segmento_rayos = []
+segmento_rayos2 = []
 for hp in grupo_choque:
     cont = 0
     anguloReflejoHipot = ()
@@ -244,12 +248,20 @@ for hp in grupo_choque:
             
     rayoPrimigenio = Rayo(hp[2], origen)
     rayo_eco = Rayo(angulo_pared, anguloReflejoHipot)
+    segmento_rayos.append(([rayoPrimigenio, rayo_eco]))
+
+    rayoPrimigenio2 = [hp[2], origen]
+    rayo_eco2 = [angulo_pared, anguloReflejoHipot]
+    segmento_rayos2.append(([rayoPrimigenio2, rayo_eco2]))
 
 #Impresiones
 for f in range(0,len(choque)):
     print("Colision: x: %s. y: %s" % (choque[f].x,choque[f].y))
 print("len(grupo_choque):%s. len(choque):%s." %
       (len(grupo_choque), len(choque)))
+for u in segmento_rayos2:
+    print("rayoPrimarioDistancia:%s. rayoPrimarioOrigen:%s. rayoEcoAnguloPared:%s. rayoEcoAnguloReflejoHipot:%s" %
+          (u[0][0], u[0][1], u[1][0], u[1][1]))
     
 #main loop
 done=False
