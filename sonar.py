@@ -7,7 +7,6 @@ import rt
 import math
 import threading
 from math import atan,sin,cos,asin,acos,pi,tan,inf
-#out = []
 
 def getPuntoFromAnguloAndDistancia(angulo,origen=Point(0,0),distancia=9999):
     return Point(distancia*cos(angulo)+origen.x,distancia*sin(angulo)+origen.y)
@@ -94,7 +93,6 @@ class Sonar:
             finalLinea=(self.pos.x+150*cos(direccion),self.pos.y+150*sin(direccion))
             conjunto_rayos.append(([Point(self.pos.x, self.pos.y), Point(finalLinea[0], finalLinea[1]), direccion]))
             
-            #pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
                 #px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
@@ -175,10 +173,11 @@ y_limite_sonar_izq = int(round((h+(2*border))/4))
 y_limite_sonar_der = int(round(((h+(2*border))/(1/8)/10)))
 aleatorio_posicion_sonar_x = random.randint(x_limite_sonar_izq, x_limite_sonar_der)
 aleatorio_posicion_sonar_y = random.randint(y_limite_sonar_izq, y_limite_sonar_der)
+origen = Point(aleatorio_posicion_sonar_x, aleatorio_posicion_sonar_y)
+#origen = Point(250, 250)
 
 # Primera recursibidad
-sonar = Sonar(Point(250, 250),angulo_limite_izquierda, angulo_limite_derecha)
-#sonar = Sonar(Point(aleatorio_posicion_sonar_x, aleatorio_posicion_sonar_y),angulo_limite_izquierda, angulo_limite_derecha)
+sonar = Sonar(origen,angulo_limite_izquierda, angulo_limite_derecha)
 
 #warning, point order affects intersection test!!
 segments = [
@@ -200,10 +199,7 @@ segments = [
 for i in segments:
     pygame.draw.line(screen, blue, (i[0].x, i[0].y), (i[1].x, i[1].y), 2)
 
-#thread setup
-#t = threading.Thread(target = sonar.ejecutar)
-#t.setDaemon(True) 
-#t.start()
+#Start
 sonar.ejecutar()
 
 # Rayos
@@ -213,8 +209,6 @@ for num in range(0,total_rayos_aleatorios):
     rayo_aleatorio = random.randint(0,len(conjunto_rayos)-1)
     rayo = conjunto_rayos.pop(rayo_aleatorio)
     conjunto_aleatorio.append(rayo)
-#for i in conjunto_aleatorio:
- #   pygame.draw.line(screen, grisamarillento, (i[0].x, i[0].y), (i[1].x, i[1].y), 1)
 print("Total de rayos %s" % len(conjunto_aleatorio))
 
 # Intersección
@@ -230,40 +224,32 @@ for imp1 in conjunto_aleatorio:
 # Matriz de pixeles, Rayo reflejado
 matriz_pixeles = pygame.PixelArray(screen)
 choque = []
-rayos_ecos = []
 for hp in grupo_choque:
+    cont = 0
+    anguloReflejoHipot = ()
     hp1x = int(round(hp[1].x))
     hp1y = int(round(hp[1].y))
-    #print("Inicio-> x:%s. y:%s. Final-> x:%s. y:%s." % (hp[0].x, hp[0].y, hp1x, hp1y))
-    cont = 0
-    rayo_eco = []
+    angulo_pared = getAngulo(hp[4], hp[3])
     trayectoria_rayo = getRoute(hp[0], Point(hp1x, hp1y), (300))
     for h in trayectoria_rayo:
         x = int(round(h.x))
         y = int(round(h.y))
-        #print("trayectoria del rayo x:%s, y:%s" % (x, y))
-        if cont == 0:
-            rayo_eco.append(Point(x, y))
         if matriz_pixeles[x][y] != screen.map_rgb(black) and matriz_pixeles[x][y] != screen.map_rgb(green) and cont == 0:
             choque.append(Point(x,y))
-            anguloReflejoHipot = obtenerAnguloDeReflexion2(getAngulo( hp[4], hp[3]),hp[2])
+            anguloReflejoHipot = obtenerAnguloDeReflexion2(angulo_pared, hp[2])
             finalRayoHipot = (x+150*cos(anguloReflejoHipot),
                               y+150*sin(anguloReflejoHipot))
             pygame.draw.line(screen, green, (x, y), finalRayoHipot, 1)
             cont = 1
             
-    rayos_ecos.append(rayo_eco)
+    rayoPrimigenio = Rayo(hp[2], origen)
+    rayo_eco = Rayo(angulo_pared, anguloReflejoHipot)
 
+#Impresiones
 for f in range(0,len(choque)):
     print("Colision: x: %s. y: %s" % (choque[f].x,choque[f].y))
 print("len(grupo_choque):%s. len(choque):%s." %
       (len(grupo_choque), len(choque)))
-
-print("Rayos eco: len(rayos_eco):%s" % len(rayos_ecos))
-#for g in range(0, len(rayos_ecos)):
-#    for j in range(0, len(rayos_ecos[g])):
-#        pygame.draw.circle(screen, (191, 255, 244),(rayos_ecos[g][j].x, rayos_ecos[g][j].y), 0)
-        #print("x:%s. y:%s" % (rayos_ecos[g][j].x, rayos_ecos[g][j].y))
     
 #main loop
 done=False
