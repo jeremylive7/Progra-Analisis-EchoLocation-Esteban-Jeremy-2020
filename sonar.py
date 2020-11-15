@@ -5,7 +5,7 @@ from PIL import Image
 import math
 import threading
 from shapely.geometry import LineString as Line,Point
-from math import atan,sin,cos,asin,acos,pi
+from math import atan,sin,cos,asin,acos,pi,radians
 def getAngulo(p1:Point,p2:Point):
     if p1.x==p2.x:
         if p1.y<p2.y:
@@ -24,7 +24,8 @@ def obtenerAnguloDeReflexion(s,r):
 def getPuntoFromAnguloAndDistancia(angulo,origen=Point(0,0),distancia=9999):
     return Point(distancia*cos(angulo)+origen.x,distancia*sin(angulo)+origen.y)
 def compararAngulos(cita,cita0):
-    return pow(cos(cita-cita0),2)
+    r=pow(cos(cita-cita0),2)
+    return r
 class Resultado:
     def __init__(self,rayo):
         d=rayo.distanciaRecorrida/2
@@ -93,8 +94,8 @@ class Rayo:
 
         #Se crean y se lanzan los rayos indispensables, el que continúa sobre el ángulo de reflejo y el que se devuelve por donde vino
         rayoReflejado=Rayo(anguloReflejo,puntoChoque,self.distanciaRecorrida,self.energia,self.direccionOriginal)
-        rayoOmega=Rayo(self.direccion+pi,puntoChoque,self.distanciaRecorrida,self.restarEnergiaPorAngulo(self.direccion+pi),self.direccionOriginal)
-        
+        rayoOmega=Rayo(self.direccion+pi,puntoChoque,self.distanciaRecorrida,self.energia,self.direccionOriginal)
+        rayoOmega.restarEnergiaPorAngulo(anguloReflejo)
         #rayoOmega.pintar()
         #rayoReflejado.pintar()
 
@@ -110,7 +111,14 @@ class Rayo:
         """
         Simula gastar energía y retorna la energía resultante.
         """
-        return self.energia-K*compararAngulos(b,self.direccion)
+        print(f"Energía anterior: {self.energia}")
+        print(f"Ángulo rayo secundario: {b}")
+        print(f"Ángulo rayo principal: {self.direccion}")
+        print(f"Resultado de la comparación: {compararAngulos(b,self.direccion)}")
+        print(f"Correspondiente energía a restar: {K*compararAngulos(b,self.direccion)}")
+        energia=self.energia-K*compararAngulos(b,self.direccion)
+        print(f"Energía final: {energia}")
+        return energia
     def getChoqueIfChoca(self,pared):
         finRayo=getPuntoFromAnguloAndDistancia(self.direccion,self.origen)
         pared=Line([(pared[0].x,pared[0].y),(pared[1].x,pared[1].y)])
@@ -147,7 +155,7 @@ class Sonar:
         return True
 
     def ejecutar(self):
-        for _ in range(50):
+        for _ in range(CANTIDAD_RAYOS_PRIMIGENIOS):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
             resultados=rayoPrimigenio.lanzar()
             if len(resultados)>0:
@@ -155,6 +163,8 @@ class Sonar:
                     #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
                     #pygame.draw.circle(screen,resultadoRebotePerfecto.intensidad,(int(resultadoRebotePerfecto.x),int(resultadoRebotePerfecto.y)),2)
                     px[int(resultadoRebotePerfecto.x)][int(resultadoRebotePerfecto.y)]=resultadoRebotePerfecto.intensidad
+                    print(f"Se registró un resultado en ({resultadoRebotePerfecto.x}, {resultadoRebotePerfecto.y}) con intensidad: {int(resultadoRebotePerfecto.intensidad[0])}!!!%$&")
+                resultados=[]
 
             #finalLinea=puntoChoqueHipot
             #finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
@@ -196,10 +206,11 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(400,300),-4*pi/5,3*pi/4)
+sonar=Sonar(Point(322,300),0,-pi)
 px[int(sonar.pos.x)][int(sonar.pos.y)]=red
-K=10 #Para pérdida de energía por el ángulo
-H=1/4#Para pérdida de energía por distancia
+K=150 #Para pérdida de energía por el ángulo
+H=1/5#Para pérdida de energía por distancia
+CANTIDAD_RAYOS_PRIMIGENIOS=100
 CANT_RAYOS_MONTECARLO=0
 
 #warning, point order affects intersection test!!
