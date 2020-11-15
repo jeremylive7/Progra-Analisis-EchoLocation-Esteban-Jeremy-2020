@@ -188,7 +188,7 @@ for imp1 in conjunto_aleatorio:
     cont = 0
     for imp2 in segments:
         if intersect(imp1[0],imp1[1],imp2[0],imp2[1]) and cont == 0:
-            grupo_choque.append(([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), imp1[2]]))
+            grupo_choque.append(([Point(imp1[0].x, imp1[0].y), Point(imp1[1].x, imp1[1].y), imp1[2], Point(imp2[0].x, imp2[0].y), Point(imp2[1].x, imp2[1].y)]))
             cont = 1
             print("Distancia:%s" % imp1[2])
 
@@ -211,7 +211,7 @@ for hp in grupo_choque:
             rayo_eco.append(Point(x, y))
         if matriz_pixeles[x][y] != screen.map_rgb(black) and cont == 0:
             choque.append(Point(x,y))
-            anguloReflejoHipot = obtenerAnguloDeReflexion2(pi, hp[2])
+            anguloReflejoHipot = obtenerAnguloDeReflexion2((getAngulo(hp[3], hp[4])), hp[2])
             finalRayoHipot = (x+150*cos(anguloReflejoHipot),
                               y+150*sin(anguloReflejoHipot))
             pygame.draw.line(screen, (0, 105, 77), (x, y), finalRayoHipot, 1)
