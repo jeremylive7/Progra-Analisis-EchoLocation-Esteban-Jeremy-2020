@@ -38,7 +38,7 @@ class Rayo:
     def pintar(self):
         p=getPuntoFromAnguloAndDistancia(self.direccion,self.origen,50)
         pygame.draw.line(screen,red,(self.origen.x,self.origen.y),(p.x,p.y),1)
-    def __init__(self,direccion,origen,distancia=0,energia=255,direccionOriginal=None):
+    def __init__(self,direccion,origen,distancia=0,energia=255,direccionOriginal=None,direccionPrivilegiada=None):
         self.direccion=direccion
         if direccionOriginal==None:
             self.direccionOriginal=direccion
@@ -47,21 +47,30 @@ class Rayo:
         self.origen=origen
         self.energia=energia
         self.distanciaRecorrida=distancia
+        if direccionPrivilegiada!=None:
+            self.restarEnergiaPorAngulo(direccionPrivilegiada)
 
     def getVectorDireccion(self):
         return Point(sin(direccion),cos(direccion))
-
     def restarEnergiaPorDistancia(self,fin):
         self.energia-=H*self.origen.distance(fin)
         return self.energia
+    def restarEnergiaPorAngulo(self,b):
+        """
+        Simula gastar energía y retorna la energía resultante.
+        """
+        self.energia-=K*compararAngulos(b,self.direccion)
+        return self.energia
     def lanzar(self,cantRecursividades=0,resultados=[]):
-        if cantRecursividades>=2:
+        if cantRecursividades>=QR:
             return resultados
+        # Si llega al sonar, termina la llamada después de convertirse en resultado.    
         if sonar.loEscucha(self):
             puntoChoque=sonar.pos
             self.distanciaRecorrida+=self.origen.distance(puntoChoque)
             self.restarEnergiaPorDistancia(puntoChoque)
-            resultados += [Resultado(self)]
+            if self.energia>0:
+                resultados += [Resultado(self)]
             return resultados
         
         ##Encontrar donde choca
@@ -72,20 +81,17 @@ class Rayo:
                 choques+=[[pared,choque]]
         if len(choques)==0:
             return resultados
-
         minimo=999999
         choque=None
         for x in choques:
             if x[1].distance(self.origen)<minimo:
                 minimo=x[1].distance(self.origen)
                 choque=x
-
-        ## Del choque más cercano nos importa el ángulo de la pared con la que choca y el punto de choque.
         
-        #self.pintar()
-        
+        #Se ubica el ángulo de la pared y el punto en el que choca con esa pared
         anguloPared=getAngulo(choque[0][0],choque[0][1])
         puntoChoque=choque[1]
+        #Luego se calcula el ángulo de reflexión
         anguloReflejo=obtenerAnguloDeReflexion(anguloPared,self.direccion)
         
         #Se realiza la simulación de que el rayo llega a la pared
@@ -93,32 +99,25 @@ class Rayo:
         self.restarEnergiaPorDistancia(puntoChoque)
 
         #Se crean y se lanzan los rayos indispensables, el que continúa sobre el ángulo de reflejo y el que se devuelve por donde vino
-        rayoReflejado=Rayo(anguloReflejo,puntoChoque,self.distanciaRecorrida,self.energia,self.direccionOriginal)
-        rayoOmega=Rayo(self.direccion+pi,puntoChoque,self.distanciaRecorrida,self.energia,self.direccionOriginal)
-        rayoOmega.restarEnergiaPorAngulo(anguloReflejo)
+        rayoReflejado=self.clone(anguloReflejo,puntoChoque)
+        rayoOmega=self.clone(self.direccion+pi,puntoChoque,anguloReflejo)
+
         #rayoOmega.pintar()
         #rayoReflejado.pintar()
 
-        rayoReflejado.lanzar(cantRecursividades+1,resultados)
         rayoOmega.lanzar(cantRecursividades+1,resultados)
+        rayoReflejado.lanzar(cantRecursividades+1,resultados)
         
         #Por último se tiran rayos secundarios desde self.origen, pierde energía respecto al ángulo de self.dirección y teniendo en cuenta el ángulo de visión que tiene jaja :'v
-        #for _ in range(CANT_RAYOS_MONTECARLO):
-            #nuevoRayo=Rayo(self.direccion,origen,self.distanciaRecorrida,self.energia,self.direccionOriginal)
-            #nuevoRayo.lanzar(cantRecursividades+1, resultados)
+        cantRayosSecundarios=abs(int(random.normalvariate(10,5)))
+        for _ in range(cantRayosSecundarios):
+            direccion=random.uniform(anguloPared,anguloPared+pi)
+            nuevoRayo=self.clone(direccion,puntoChoque,self.direccion)
+            nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
-    def restarEnergiaPorAngulo(self,b):
-        """
-        Simula gastar energía y retorna la energía resultante.
-        """
-        print(f"Energía anterior: {self.energia}")
-        print(f"Ángulo rayo secundario: {b}")
-        print(f"Ángulo rayo principal: {self.direccion}")
-        print(f"Resultado de la comparación: {compararAngulos(b,self.direccion)}")
-        print(f"Correspondiente energía a restar: {K*compararAngulos(b,self.direccion)}")
-        energia=self.energia-K*compararAngulos(b,self.direccion)
-        print(f"Energía final: {energia}")
-        return energia
+    def clone(self,nuevaDireccion,nuevoOrigen,direccionPrivilegiada=None):
+        return Rayo(nuevaDireccion,nuevoOrigen,self.distanciaRecorrida,self.energia,self.direccionOriginal,direccionPrivilegiada=direccionPrivilegiada)
+    
     def getChoqueIfChoca(self,pared):
         finRayo=getPuntoFromAnguloAndDistancia(self.direccion,self.origen)
         pared=Line([(pared[0].x,pared[0].y),(pared[1].x,pared[1].y)])
@@ -131,7 +130,8 @@ class Rayo:
             return False
         return Point(Xi,Yi)
 class Sonar:
-    def __init__(self,posicion:Point,low:float,high:float):
+    def __init__(self,posicion:Point,low:float,high:float,cantRayosPrimigenios):
+        self.cantRayosPrimigenios=abs(int(cantRayosPrimigenios))
         self.pos:Point=posicion
         while abs(high-low)>pi:
             low+=(1-2*(high<low))*2*pi
@@ -155,17 +155,16 @@ class Sonar:
         return True
 
     def ejecutar(self):
-        for _ in range(CANTIDAD_RAYOS_PRIMIGENIOS):
+        for _ in range(self.cantRayosPrimigenios):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
             resultados=rayoPrimigenio.lanzar()
             if len(resultados)>0:
-                for resultadoRebotePerfecto in resultados:
+                for resultado in resultados:
                     #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
                     #pygame.draw.circle(screen,resultadoRebotePerfecto.intensidad,(int(resultadoRebotePerfecto.x),int(resultadoRebotePerfecto.y)),2)
-                    px[int(resultadoRebotePerfecto.x)][int(resultadoRebotePerfecto.y)]=resultadoRebotePerfecto.intensidad
-                    print(f"Se registró un resultado en ({resultadoRebotePerfecto.x}, {resultadoRebotePerfecto.y}) con intensidad: {int(resultadoRebotePerfecto.intensidad[0])}!!!%$&")
-                resultados=[]
-
+                    if getRGBfromI(px[int(resultado.x)][int(resultado.y)])[0]<resultado.intensidad[0]:
+                        px[int(resultado.x)][int(resultado.y)]=resultado.intensidad
+                    #print(f"Se registró un resultado en ({resultadoRebotePerfecto.x}, {resultadoRebotePerfecto.y}) con intensidad: {int(resultadoRebotePerfecto.intensidad[0])}!!!%$")
             #finalLinea=puntoChoqueHipot
             #finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
             
@@ -179,7 +178,11 @@ class Sonar:
         while angulo<-pi or angulo>pi:
             angulo+=2*pi*(1-2*(angulo>pi))
         return angulo
-    
+def getRGBfromI(RGBint):
+    blue =  RGBint & 255
+    green = (RGBint >> 8) & 255
+    red =   (RGBint >> 16) & 255
+    return red, green, blue
     
     
     
@@ -206,11 +209,11 @@ clock = pygame.time.Clock()
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(322,300),0,-pi)
+sonar=Sonar(Point(200,350),0,-pi,random.normalvariate(2000,5))
 px[int(sonar.pos.x)][int(sonar.pos.y)]=red
 K=150 #Para pérdida de energía por el ángulo
 H=1/5#Para pérdida de energía por distancia
-CANTIDAD_RAYOS_PRIMIGENIOS=100
+QR=3
 CANT_RAYOS_MONTECARLO=0
 
 #warning, point order affects intersection test!!
@@ -224,6 +227,7 @@ segments = [
             ([Point(180, 286), Point(140, 286)]),
             ([Point(320, 320), Point(360, 320)]),
             ([Point(180, 250), Point(180, 135)]),
+            ([Point(330, 250), Point(350, 280)]),
             ]
 
 for i in segments:
