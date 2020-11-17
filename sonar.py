@@ -29,8 +29,8 @@ def compararAngulos(cita,cita0):
 class Resultado:
     def __init__(self,rayo):
         d=rayo.distanciaRecorrida/2
-        self.x=sonar.pos.x+cos(rayo.direccionOriginal)*d
-        self.y=+sonar.pos.y+sin(rayo.direccionOriginal)*d
+        self.x=rayo.sonar.pos.x+cos(rayo.direccionOriginal)*d
+        self.y=+rayo.sonar.pos.y+sin(rayo.direccionOriginal)*d
         e=rayo.energia
         self.intensidad=(e,e,e)
 
@@ -38,8 +38,9 @@ class Rayo:
     def pintar(self):
         p=getPuntoFromAnguloAndDistancia(self.direccion,self.origen,50)
         pygame.draw.line(screen,red,(self.origen.x,self.origen.y),(p.x,p.y),1)
-    def __init__(self,direccion,origen,distancia=0,energia=255,direccionOriginal=None,direccionPrivilegiada=None):
+    def __init__(self,sonar,direccion,origen,distancia=0,energia=255,direccionOriginal=None,direccionPrivilegiada=None):
         self.direccion=direccion
+        self.sonar=sonar
         if direccionOriginal==None:
             self.direccionOriginal=direccion
         else:
@@ -65,8 +66,8 @@ class Rayo:
         if cantRecursividades>=QR:
             return resultados
         # Si llega al sonar, termina la llamada después de convertirse en resultado.    
-        if sonar.loEscucha(self):
-            puntoChoque=sonar.pos
+        if self.sonar.loEscucha(self):
+            puntoChoque=self.sonar.pos
             self.distanciaRecorrida+=self.origen.distance(puntoChoque)
             self.restarEnergiaPorDistancia(puntoChoque)
             if self.energia>0:
@@ -116,7 +117,7 @@ class Rayo:
             nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
     def clone(self,nuevaDireccion,nuevoOrigen,direccionPrivilegiada=None):
-        return Rayo(nuevaDireccion,nuevoOrigen,self.distanciaRecorrida,self.energia,self.direccionOriginal,direccionPrivilegiada=direccionPrivilegiada)
+        return Rayo(self.sonar,nuevaDireccion,nuevoOrigen,self.distanciaRecorrida,self.energia,self.direccionOriginal,direccionPrivilegiada=direccionPrivilegiada)
     
     def getChoqueIfChoca(self,pared):
         finRayo=getPuntoFromAnguloAndDistancia(self.direccion,self.origen)
@@ -141,6 +142,7 @@ class Sonar:
             low=x
         self.low=low
         self.high=high
+        px[int(self.pos.x)][int(self.pos.y)]=red
     def loEscucha(self,rayo):
         if rayo.origen==self.pos:
             return False
@@ -156,14 +158,21 @@ class Sonar:
 
     def ejecutar(self):
         for _ in range(self.cantRayosPrimigenios):
-            rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
+            rayoPrimigenio=Rayo(self,random.uniform(self.low,self.high),self.pos)
             resultados=rayoPrimigenio.lanzar()
             if len(resultados)>0:
                 for resultado in resultados:
                     #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
                     #pygame.draw.circle(screen,resultadoRebotePerfecto.intensidad,(int(resultadoRebotePerfecto.x),int(resultadoRebotePerfecto.y)),2)
-                    if getRGBfromI(px[int(resultado.x)][int(resultado.y)])[0]<resultado.intensidad[0]:
+                    
+                    if resultado.x>0 and resultado.y>0 and len(px)>int(resultado.x)and len(px[int(resultado.x)])>int(resultado.y) and getRGBfromI(px[int(resultado.x)][int(resultado.y)])[0]<resultado.intensidad[0]:
                         px[int(resultado.x)][int(resultado.y)]=resultado.intensidad
+        
+        w=random.uniform(-pi,pi)    
+        sonar=Sonar(Point(random.randint(100,500),random.randint(100,500)),w,w+pi,400)
+        t=threading.Timer(0.1,sonar.ejecutar)
+        t.setDaemon(True) 
+        t.start()
                     #print(f"Se registró un resultado en ({resultadoRebotePerfecto.x}, {resultadoRebotePerfecto.y}) con intensidad: {int(resultadoRebotePerfecto.intensidad[0])}!!!%$")
             #finalLinea=puntoChoqueHipot
             #finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
@@ -202,39 +211,46 @@ pygame.init()
 screen = pygame.display.set_mode((w+(2*border), h+(2*border)))
 screen.fill(black)
 px=pygame.PixelArray(screen)
-pygame.display.set_caption("2D Raytracing")
+pygame.display.set_caption("Sonar")
 clock = pygame.time.Clock()
 
 #init random
 random.seed()
 
 # posición del sonar
-sonar=Sonar(Point(200,350),0,-pi,random.normalvariate(2000,5))
-px[int(sonar.pos.x)][int(sonar.pos.y)]=red
+w=random.uniform(-pi,pi)
+sonares=[
+    Sonar(Point(200,500),w,w+pi,400),
+    Sonar(Point(450,450),w-pi,w,400),
+    Sonar(Point(500,200),w,w-pi,400),
+]
 K=150 #Para pérdida de energía por el ángulo
 H=1/5#Para pérdida de energía por distancia
 QR=3
-CANT_RAYOS_MONTECARLO=0
 
 #warning, point order affects intersection test!!
 segments = [
-            ([Point(180, 135), Point(215, 135)]), 
-            ([Point(285, 135), Point(320, 135)]),
-            ([Point(320, 135), Point(320, 280)]),
-            ([Point(320, 320), Point(320, 355)]),
-            ([Point(320, 355), Point(215, 355)]),
-            ([Point(180, 390), Point(180, 286)]),
-            ([Point(180, 286), Point(140, 286)]),
-            ([Point(320, 320), Point(360, 320)]),
-            ([Point(180, 250), Point(180, 135)]),
-            ([Point(330, 250), Point(350, 280)]),
-            ]
+    ([Point(180, 135), Point(215, 135)]), 
+    ([Point(285, 135), Point(320, 135)]),
+    ([Point(320, 135), Point(320, 280)]),
+    ([Point(320, 320), Point(320, 355)]),
+    ([Point(320, 355), Point(215, 355)]),
+    ([Point(180, 390), Point(180, 286)]),
+    ([Point(180, 286), Point(140, 286)]),
+    ([Point(320, 320), Point(360, 320)]),
+    ([Point(180, 250), Point(180, 135)]),
+    ([Point(330, 250), Point(350, 280)]),
+]
 
 for i in segments:
     pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 1)
 
 #thread setup
-t = threading.Thread(target = sonar.ejecutar)
+def funcion():
+    for sonar in sonares:
+        sonar.ejecutar()
+
+t=threading.Thread(target=funcion)
 t.setDaemon(True) 
 t.start()
 
