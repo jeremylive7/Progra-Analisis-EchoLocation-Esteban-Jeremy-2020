@@ -29,8 +29,8 @@ def compararAngulos(cita,cita0):
 class Resultado:
     def __init__(self,rayo):
         d=rayo.distanciaRecorrida/2
-        self.x=sonar.pos.x+cos(rayo.direccionOriginal)*d
-        self.y=+sonar.pos.y+sin(rayo.direccionOriginal)*d
+        self.x=pos.x+cos(rayo.direccionOriginal)*d
+        self.y=+pos.y+sin(rayo.direccionOriginal)*d
         e=rayo.energia
         self.intensidad=(e,e,e)
 
@@ -66,7 +66,7 @@ class Rayo:
             return resultados
         # Si llega al sonar, termina la llamada después de convertirse en resultado.    
         if sonar.loEscucha(self):
-            puntoChoque=sonar.pos
+            puntoChoque=pos
             self.distanciaRecorrida+=self.origen.distance(puntoChoque)
             self.restarEnergiaPorDistancia(puntoChoque)
             if self.energia>0:
@@ -77,9 +77,9 @@ class Rayo:
         choques=[]
         for pared in segments:
             choque=self.getChoqueIfChoca(pared)
-            if choque!=False and choque!=self.origen:
-                choques+=[[pared,choque]]
-        if len(choques)==0:
+            if choque != False and choque != self.origen:
+                choques += [[pared,choque]]
+        if len(choques) == 0:
             return resultados
         minimo=999999
         choque=None
@@ -111,7 +111,7 @@ class Rayo:
         #Por último se tiran rayos secundarios desde self.origen, pierde energía respecto al ángulo de self.dirección y teniendo en cuenta el ángulo de visión que tiene jaja :'v
         cantRayosSecundarios=abs(int(random.normalvariate(10,5)))
         for _ in range(cantRayosSecundarios):
-            direccion=random.uniform(anguloPared,anguloPared+pi)
+            direccion=random.uniform(anguloPared-pi,anguloPared)
             nuevoRayo=self.clone(direccion,puntoChoque,self.direccion)
             nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
@@ -142,33 +142,34 @@ class Sonar:
         self.low=low
         self.high=high
     def loEscucha(self,rayo):
-        if rayo.origen==self.pos:
+        if rayo.origen==pos:
             return False
-        distancia=self.pos.distance(rayo.origen)
+        distancia=pos.distance(rayo.origen)
         p=Point(rayo.origen.x+distancia*cos(rayo.direccion),rayo.origen.y+distancia*sin(rayo.direccion))
-        if p.distance(self.pos)>10:
+        if p.distance(pos)>10:
             return False
         for pared in segments:
             choque=rayo.getChoqueIfChoca(pared)
-            if choque!=False and distancia>choque.distance(rayo.origen)and choque.distance(self.pos)<distancia:
+            if choque!=False and distancia>choque.distance(rayo.origen)and choque.distance(pos)<distancia:
                 return False
         return True
 
     def ejecutar(self):
         for _ in range(self.cantRayosPrimigenios):
-            rayoPrimigenio=Rayo(random.uniform(self.low,self.high),self.pos)
+            rayoPrimigenio=Rayo(random.uniform(self.low,self.high),pos)
             resultados=rayoPrimigenio.lanzar()
             if len(resultados)>0:
                 for resultado in resultados:
                     #calcular distancia con el sonar desde el punto de choque y restarle la energía al reflejo perfecto
                     #pygame.draw.circle(screen,resultadoRebotePerfecto.intensidad,(int(resultadoRebotePerfecto.x),int(resultadoRebotePerfecto.y)),2)
-                    if getRGBfromI(px[int(resultado.x)][int(resultado.y)])[0]<resultado.intensidad[0]:
+                    if int(resultado.x)>0 and int(resultado.x)<len(px)  and int(resultado.y)>0 and int(resultado.y)<len(px[int(resultado.x)]) and getRGBfromI(px[int(resultado.x)][int(resultado.y)])[0]<resultado.intensidad[0]:
                         px[int(resultado.x)][int(resultado.y)]=resultado.intensidad
+        print("FIN")
                     #print(f"Se registró un resultado en ({resultadoRebotePerfecto.x}, {resultadoRebotePerfecto.y}) con intensidad: {int(resultadoRebotePerfecto.intensidad[0])}!!!%$")
             #finalLinea=puntoChoqueHipot
             #finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
             
-            #pygame.draw.line(screen, grisamarillento, (self.pos.x,self.pos.y), finalLinea, 1)
+            #pygame.draw.line(screen, grisamarillento, (pos.x,pos.y), finalLinea, 1)
             #pygame.draw.line(screen, (0, 145, 77),finalLinea,finalRayoHipot,1)
             
             #resultados=enviarSonido(direccion)
@@ -202,20 +203,40 @@ pygame.init()
 screen = pygame.display.set_mode((w+(2*border), h+(2*border)))
 screen.fill(black)
 px=pygame.PixelArray(screen)
-pygame.display.set_caption("2D Raytracing")
+pygame.display.set_caption("Sonar")
 clock = pygame.time.Clock()
 
 #init random
 random.seed()
+def getSonar():
+    angulos_direcciones = [0, pi*5/6, pi*3/4, pi*2/3, pi/2, pi/3, pi/4, pi/6, pi, -pi/6, -pi/4, -pi/3, -pi/2, -pi*2/3, -pi*3/4, -pi*5/6]
+    largo_angulos_posibles = len(angulos_direcciones)-1
 
-# posición del sonar
-sonar=Sonar(Point(200,350),0,-pi,random.normalvariate(2000,5))
-px[int(sonar.pos.x)][int(sonar.pos.y)]=red
+    # Recursibidad posiciones aleatorias del Sonar
+    total_rayos_aleatorios = random.normalvariate(10000,20)
+    sonar_inicial_random = random.randint(0, largo_angulos_posibles)
+    sonar_inicial = angulos_direcciones[sonar_inicial_random]
+    angulo_limite_izquierda = sonar_inicial_random-1
+    angulo_limite_derecha = sonar_inicial_random+1
+    if angulo_limite_derecha > largo_angulos_posibles:
+        angulo_limite_derecha = 0
+    if angulo_limite_izquierda < 0:
+        angulo_limite_izquierda = largo_angulos_posibles
+    x_limite_sonar_izq = int(round((w+(2*border))/4))
+    x_limite_sonar_der = int(round(((w+(2*border))/(1/8)/10)))
+    y_limite_sonar_izq = int(round((h+(2*border))/4))
+    y_limite_sonar_der = int(round(((h+(2*border))/(1/8)/10)))
+    aleatorio_posicion_sonar_x = random.randint(x_limite_sonar_izq, x_limite_sonar_der)
+    aleatorio_posicion_sonar_y = random.randint(y_limite_sonar_izq, y_limite_sonar_der)
+    origen = Point(aleatorio_posicion_sonar_x, aleatorio_posicion_sonar_y)
+    return Sonar(origen,angulos_direcciones[angulo_limite_izquierda], angulos_direcciones[angulo_limite_derecha],total_rayos_aleatorios)
+sonar=getSonar()
+CANT_SONARES=10
 K=150 #Para pérdida de energía por el ángulo
 H=1/5#Para pérdida de energía por distancia
 QR=3
-CANT_RAYOS_MONTECARLO=0
-
+pos=Point(400,300)
+px[int(pos.x)][int(pos.y)]=red
 #warning, point order affects intersection test!!
 segments = [
             ([Point(180, 135), Point(215, 135)]), 
@@ -237,13 +258,35 @@ for i in segments:
 t = threading.Thread(target = sonar.ejecutar)
 t.setDaemon(True) 
 t.start()
-
 #main loop
 done=False
 while not done:
+        px[int(pos.x)][int(pos.y)]=red
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
+                if event.type==pygame.KEYDOWN:
+                    if event.key in [pygame.K_DOWN,pygame.K_UP,pygame.K_RIGHT,pygame.K_LEFT]:
+                        px[int(pos.x),int(pos.y)]=(0,0,0)
+                    if event.key==pygame.K_DOWN:
+                        pos=Point(pos.x,pos.y+4)
+                    if event.key==pygame.K_UP:
+                        pos=Point(pos.x,pos.y-4)
+                    if event.key==pygame.K_LEFT:
+                        pos=Point(pos.x-4,pos.y)
+                    if event.key==pygame.K_RIGHT:
+                        pos=Point(pos.x+4,pos.y)
+                    if event.key==pygame.K_b:
+                        sonar.low+=pi/8
+                        sonar.high+=pi/8
+                        print (f"low: {sonar.low}\nhigh: {sonar.high}")
+                    if event.key==pygame.K_a:
+                        sonar.low-=pi/8
+                        sonar.high-=pi/8
+                        print (f"low: {sonar.low}\nhigh: {sonar.high}")
+                    if event.key in [pygame.K_DOWN,pygame.K_UP,pygame.K_RIGHT,pygame.K_LEFT]:
+                        print("hola")
+                        px[int(pos.x),int(pos.y)]=red
         pygame.display.update()
         clock.tick(60)
 pygame.quit()
