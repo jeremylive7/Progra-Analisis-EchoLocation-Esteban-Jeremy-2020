@@ -221,7 +221,7 @@ def getSonar():
     largo_angulos_posibles = len(angulos_direcciones)-1
 
     # Recursibidad posiciones aleatorias del Sonar
-    total_rayos_aleatorios = 200#random.normalvariate(200,20)
+    total_rayos_aleatorios = random.normalvariate(200,20)
     sonar_inicial_random = random.randint(0, largo_angulos_posibles)
     sonar_inicial = angulos_direcciones[sonar_inicial_random]
     angulo_limite_izquierda = sonar_inicial_random-1
@@ -240,8 +240,8 @@ def getSonar():
     return Sonar(origen,angulos_direcciones[angulo_limite_izquierda], angulos_direcciones[angulo_limite_derecha]+pi,total_rayos_aleatorios)
 sonar=getSonar()
 CANT_SONARES=10
-K=200 #Para pérdida de energía por el ángulo
-H=1/3#Para pérdida de energía por distancia
+K=150 #Para pérdida de energía por el ángulo
+H=1/5#Para pérdida de energía por distancia
 QR=3
 pos=Point(400,300)
 px[int(pos.x)][int(pos.y)]=red
