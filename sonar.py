@@ -6,6 +6,7 @@ import math
 import threading
 from shapely.geometry import LineString as Line,Point
 from math import atan,sin,cos,asin,acos,pi,radians
+from time import time
 def getAngulo(p1:Point,p2:Point):
     if p1.x==p2.x:
         if p1.y<p2.y:
@@ -28,6 +29,8 @@ def compararAngulos(cita,cita0):
     return r
 class Resultado:
     def __init__(self,rayo):
+        global contadorRayosEscuchados
+        contadorRayosEscuchados+=1
         d=rayo.distanciaRecorrida/2
         self.x=pos.x+cos(rayo.direccionOriginal)*d
         self.y=+pos.y+sin(rayo.direccionOriginal)*d
@@ -156,6 +159,8 @@ class Sonar:
         return True
 
     def ejecutar(self):
+        global contadorRayosEscuchados
+        timeStamp=time()
         for _ in range(self.cantRayosPrimigenios):
             rayoPrimigenio=Rayo(random.uniform(self.low,self.high),pos)
             resultados=rayoPrimigenio.lanzar()
@@ -165,7 +170,8 @@ class Sonar:
                     #pygame.draw.circle(screen,resultadoRebotePerfecto.intensidad,(int(resultadoRebotePerfecto.x),int(resultadoRebotePerfecto.y)),2)
                     if int(resultado.x)>0 and int(resultado.x)<len(px)  and int(resultado.y)>0 and int(resultado.y)<len(px[int(resultado.x)]) and getRGBfromI(px[int(resultado.x)][int(resultado.y)])[0]<resultado.intensidad[0]:
                         px[int(resultado.x)][int(resultado.y)]=resultado.intensidad
-        print("FIN")
+        print("Tiempo total de ejecución:",time()-timeStamp)
+        print("Cantidad totalde rayos que llegaron al sonar:",contadorRayosEscuchados)
                     #print(f"Se registró un resultado en ({resultadoRebotePerfecto.x}, {resultadoRebotePerfecto.y}) con intensidad: {int(resultadoRebotePerfecto.intensidad[0])}!!!%$")
             #finalLinea=puntoChoqueHipot
             #finalRayoHipot=(finalLinea[0]+300*cos(anguloReflejoHipot),finalLinea[1]+300*sin(anguloReflejoHipot))
@@ -206,6 +212,7 @@ screen.fill(black)
 px=pygame.PixelArray(screen)
 pygame.display.set_caption("Sonar")
 clock = pygame.time.Clock()
+contadorRayosEscuchados=0
 
 #init random
 random.seed()
@@ -214,7 +221,7 @@ def getSonar():
     largo_angulos_posibles = len(angulos_direcciones)-1
 
     # Recursibidad posiciones aleatorias del Sonar
-    total_rayos_aleatorios = random.normalvariate(10000,20)
+    total_rayos_aleatorios = 200#random.normalvariate(200,20)
     sonar_inicial_random = random.randint(0, largo_angulos_posibles)
     sonar_inicial = angulos_direcciones[sonar_inicial_random]
     angulo_limite_izquierda = sonar_inicial_random-1
@@ -233,8 +240,8 @@ def getSonar():
     return Sonar(origen,angulos_direcciones[angulo_limite_izquierda], angulos_direcciones[angulo_limite_derecha]+pi,total_rayos_aleatorios)
 sonar=getSonar()
 CANT_SONARES=10
-K=150 #Para pérdida de energía por el ángulo
-H=1/5#Para pérdida de energía por distancia
+K=200 #Para pérdida de energía por el ángulo
+H=1/3#Para pérdida de energía por distancia
 QR=3
 pos=Point(400,300)
 px[int(pos.x)][int(pos.y)]=red
@@ -377,7 +384,6 @@ while not done:
                         sonar.high-=pi/8
                         print (f"low: {sonar.low}\thigh: {sonar.high}")
                     if event.key in [pygame.K_DOWN,pygame.K_UP,pygame.K_RIGHT,pygame.K_LEFT]:
-                        print("hola")
                         px[int(pos.x),int(pos.y)]=red
         pygame.display.update()
         clock.tick(60)
