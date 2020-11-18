@@ -111,8 +111,9 @@ class Rayo:
         #Por último se tiran rayos secundarios desde self.origen, pierde energía respecto al ángulo de self.dirección y teniendo en cuenta el ángulo de visión que tiene jaja :'v
         cantRayosSecundarios=abs(int(random.normalvariate(10,5)))
         for _ in range(cantRayosSecundarios):
-            direccion=random.uniform(anguloPared-pi,anguloPared)
-            nuevoRayo=self.clone(direccion,puntoChoque,self.direccion)
+            direccion=random.normalvariate(self.direccion,pi/4)
+            nuevoRayo=self.clone(direccion,self.origen,self.direccion)
+            #nuevoRayo.pintar()
             nuevoRayo.lanzar(cantRecursividades+1, resultados)
         return resultados
     def clone(self,nuevaDireccion,nuevoOrigen,direccionPrivilegiada=None):
@@ -175,10 +176,10 @@ class Sonar:
             #resultados=enviarSonido(direccion)
             #for resultado in resultados:
                 #px[resultado.posicion.x][resultado.posicion.y]=(resultado.intensidad,resultado.intensidad,resultado.intensidad)
-    def anguloPrincipal(self,angulo):
-        while angulo<-pi or angulo>pi:
-            angulo+=2*pi*(1-2*(angulo>pi))
-        return angulo
+def anguloPrincipal(angulo):
+    while angulo<-pi or angulo>pi:
+        angulo+=2*pi*(1-2*(angulo>pi))
+    return angulo
 def getRGBfromI(RGBint):
     blue =  RGBint & 255
     green = (RGBint >> 8) & 255
@@ -229,7 +230,7 @@ def getSonar():
     aleatorio_posicion_sonar_x = random.randint(x_limite_sonar_izq, x_limite_sonar_der)
     aleatorio_posicion_sonar_y = random.randint(y_limite_sonar_izq, y_limite_sonar_der)
     origen = Point(aleatorio_posicion_sonar_x, aleatorio_posicion_sonar_y)
-    return Sonar(origen,angulos_direcciones[angulo_limite_izquierda], angulos_direcciones[angulo_limite_derecha],total_rayos_aleatorios)
+    return Sonar(origen,angulos_direcciones[angulo_limite_izquierda], angulos_direcciones[angulo_limite_derecha]+pi,total_rayos_aleatorios)
 sonar=getSonar()
 CANT_SONARES=10
 K=150 #Para pérdida de energía por el ángulo
@@ -239,17 +240,108 @@ pos=Point(400,300)
 px[int(pos.x)][int(pos.y)]=red
 #warning, point order affects intersection test!!
 segments = [
-            ([Point(180, 135), Point(215, 135)]), 
-            ([Point(285, 135), Point(320, 135)]),
-            ([Point(320, 135), Point(320, 280)]),
-            ([Point(320, 320), Point(320, 355)]),
-            ([Point(320, 355), Point(215, 355)]),
-            ([Point(180, 390), Point(180, 286)]),
-            ([Point(180, 286), Point(140, 286)]),
-            ([Point(320, 320), Point(360, 320)]),
-            ([Point(180, 250), Point(180, 135)]),
-            ([Point(330, 250), Point(350, 280)]),
-            ]
+    ([Point(28,126), Point(6,197)]), 
+    ([Point(6,197), Point(31, 197)]),
+    ([Point(31, 197), Point(39, 168)]),
+    ([Point(39, 168), Point(73, 168)]),
+    ([Point(47, 168), Point(45,181)]),
+    ([Point(45,181), Point(61, 181)]),
+    ([Point(61, 181), Point(65,168)]),
+    ([Point(73, 168), Point(67,198)]),
+    ([Point(67,198), Point(90, 197)]),
+    ([Point(90, 197), Point(106,127)]),
+    [Point(106,126), Point(84,126)],
+    [Point(84,126), Point(81,139)],
+    [Point(72,139), Point(81,139)],
+    [Point(72,139), Point(70,152)],
+    [Point(70,152), Point(53,152)],
+    [Point(55,140), Point(53,152)],
+    [Point(55,140), Point(48,140)],
+    [Point(48,140), Point(52,127)],
+    [Point(52,127), Point(29,127)],
+    [Point(115,127), Point(135,127)],
+    [Point(115,127), Point(101,197)],
+    [Point(101,197), Point(123,197)],
+    [Point(123,197), Point(135,127)],
+    [Point(146,127), Point(133,197)],
+    [Point(133,197), Point(158,197)],
+    [Point(158,197), Point(164,160)],
+    [Point(164,160), Point(172,160)],
+    [Point(172,160), Point(171,173)],
+    [Point(171,173), Point(178,173)],
+    [Point(178,173), Point(177,197)],
+    [Point(199,197), Point(177,197)],
+    [Point(199,197), Point(208,127)],
+    [Point(208,127), Point(185,127)],
+    [Point(185,127), Point(182,151)],
+    [Point(173,151), Point(174,140)],
+    [Point(174,140), Point(166,140)],
+    [Point(166,140), Point(167,127)],
+    [Point(167,127), Point(145,127)],
+    [Point(218,127), Point(210,197)],
+    [Point(268,197), Point(210,197)],
+    [Point(268,197), Point(268,182)],
+    [Point(268,182), Point(236,182)],
+    [Point(236,182), Point(238,140)],
+    [Point(236,166), Point(269,166)],
+    [Point(269,166), Point(269,153)],
+    [Point(269,153), Point(238,153)],
+    [Point(239,139), Point(270,139)],
+    [Point(270,139), Point(270,127)],
+    [Point(279,127), Point(277,197)],
+    [Point(289,197), Point(290,194)],
+    [Point(298,193), Point(290,194)],
+    [Point(298,193), Point(299,196)],
+    [Point(299,196), Point(303,197)],
+    [Point(303,197), Point(322,197)],
+    [Point(322,197), Point(323,188)],
+    [Point(323,188), Point(325,197)],
+    [Point(325,197), Point(334,197)],
+    [Point(334,197), Point(334,183)],
+    [Point(334,183), Point(301,183)],
+    [Point(301,183), Point(301,140)],
+    [Point(301,140), Point(334,139)],
+    [Point(334,140), Point(333,127)],
+    [Point(333,127), Point(279,127)],
+    [Point(342,127), Point(345,197)],
+    [Point(345,197), Point(368,197)],
+    [Point(368,197), Point(369,167)],
+    [Point(369,166), Point(377,166)],
+    [Point(377,166), Point(380,197)],
+    [Point(380,197), Point(401,197)],
+    [Point(401,197), Point(399,161)],
+    [Point(399,161), Point(391,161)],
+    [Point(391,161), Point(383,159)],
+    [Point(383,159), Point(389,157)],
+    [Point(389,157), Point(390,152)],
+    [Point(390,152), Point(397,152)],
+    [Point(397,152), Point(396,127)],
+    [Point(396,127), Point(342,127)],
+    [Point(405,127), Point(414,196)],
+    [Point(435,196), Point(414,196)],
+    [Point(435,196), Point(433,172)],
+    [Point(443,172), Point(433,172)],
+    [Point(443,172), Point(447,197)],
+    [Point(447,197), Point(469,197)],
+    [Point(469,197), Point(459,127)],
+    [Point(459,127), Point(405,127)],
+    [Point(469,127), Point(482,197)],
+    [Point(482,197), Point(504,197)],
+    [Point(504,197), Point(497,166)],
+    [Point(497,166), Point(529,166)],
+    [Point(529,166), Point(528,153)],
+    [Point(496,153), Point(528,153)],
+    [Point(496,153), Point(492,140)],
+    [Point(492,140), Point(524,139)],
+    [Point(524,140), Point(521,127)],
+    [Point(521,127), Point(467,127)],
+    [Point(530,126), Point(533,139)],
+    [Point(533,139), Point(588,139)],
+    [Point(551,140), Point(566,196)],
+    [Point(566,196), Point(589,197)],
+    [Point(589,197), Point(572,140)],
+    [Point(585,127), Point(531,127)],
+]
 
 for i in segments:
     pygame.draw.line(screen, blue, (i[0].x,i[0].y), (i[1].x,i[1].y), 1)
@@ -279,11 +371,11 @@ while not done:
                     if event.key==pygame.K_b:
                         sonar.low+=pi/8
                         sonar.high+=pi/8
-                        print (f"low: {sonar.low}\nhigh: {sonar.high}")
+                        print (f"low: {sonar.low}\thigh: {sonar.high}")
                     if event.key==pygame.K_a:
                         sonar.low-=pi/8
                         sonar.high-=pi/8
-                        print (f"low: {sonar.low}\nhigh: {sonar.high}")
+                        print (f"low: {sonar.low}\thigh: {sonar.high}")
                     if event.key in [pygame.K_DOWN,pygame.K_UP,pygame.K_RIGHT,pygame.K_LEFT]:
                         print("hola")
                         px[int(pos.x),int(pos.y)]=red
